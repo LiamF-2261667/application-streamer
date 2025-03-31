@@ -1,8 +1,8 @@
 use crate::track::TrackConsumer;
-use crate::{Audio, Catalog, Error, Result, Track, TrackProducer, Video};
+use crate::{Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
 use derive_more::Debug;
 use moq_async::Lock;
-use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, Session};
+use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, GroupOrder, Session};
 
 struct BroadcastProducerState {
 	catalog: CatalogProducer,
@@ -175,15 +175,26 @@ pub struct BroadcastConsumer {
 	catalog_latest: Option<Catalog>,
 	catalog_track: Option<moq_transfork::TrackConsumer>,
 	catalog_group: Option<moq_transfork::GroupConsumer>,
+	input_track: moq_transfork::TrackProducer,
 }
 
 impl BroadcastConsumer {
-	pub fn new(session: Session, path: String) -> Self {
+	pub fn new(mut session: Session, path: String) -> Self {
 		let filter = moq_transfork::Filter::Wildcard {
 			prefix: format!("{}/", path),
 			suffix: "/catalog.json".to_string(),
 		};
 		let announced = session.announced(filter);
+
+		// Publish the input track
+		let input_track = moq_transfork::Track{
+			path: format!("{}/input.karp", path),
+			priority: 0,
+			order: GroupOrder::Desc,
+		};
+		let (input_producer, input_consumer) = input_track.clone().produce();
+		session.publish(input_consumer).expect("failed to publish input track");
+		tracing::info!(?input_track);
 
 		Self {
 			session,
@@ -194,7 +205,16 @@ impl BroadcastConsumer {
 			catalog_latest: None,
 			catalog_track: None,
 			catalog_group: None,
+			input_track: input_producer,
 		}
+	}
+
+	/// Sends an input to the broadcast.
+	pub fn input(&mut self, input: Input) -> Result<()> {
+		let mut group = self.input_track.append_group();
+		group.write_frame(input);
+
+		Ok(())
 	}
 
 	pub fn catalog(&self) -> Option<&Catalog> {

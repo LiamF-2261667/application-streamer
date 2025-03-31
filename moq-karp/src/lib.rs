@@ -12,6 +12,7 @@ mod group;
 mod server;
 mod track;
 mod video;
+mod input;
 
 pub use audio::*;
 pub use broadcast::*;
@@ -27,6 +28,7 @@ pub use group::*;
 pub use server::*;
 pub use track::*;
 pub use video::*;
+pub use input::*;
 
 pub mod cmaf;
 

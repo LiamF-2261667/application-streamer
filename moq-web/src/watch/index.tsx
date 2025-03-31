@@ -80,6 +80,16 @@ export class Watch extends MoqElement {
 		this.#runRendererStatus();
 	}
 
+	public keydown(event: KeyboardEvent) {
+		this.#worker.then((worker) => worker.keydown(event.key));
+	}
+	public keyup(event: KeyboardEvent) {
+		this.#worker.then((worker) => worker.keyup(event.key));
+	}
+	public mouse(event: MouseEvent) {
+		this.#worker.then((worker) => worker.mouse(event.x, event.y));
+	}
+
 	private urlChange(value: string) {
 		this.#worker.then((worker) => worker.url(value));
 	}

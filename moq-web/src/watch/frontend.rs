@@ -5,7 +5,7 @@ use url::Url;
 use wasm_bindgen::prelude::*;
 
 use web_sys::OffscreenCanvas;
-
+use moq_karp::{Input, Key};
 use super::{Backend, StatusRecv, WatchStatus};
 use crate::{watch::Status, Error, Result};
 
@@ -36,6 +36,7 @@ impl Default for Controls {
 pub struct Watch {
 	controls: ControlsSend,
 	status: StatusRecv,
+	backend: Backend,
 }
 
 #[wasm_bindgen]
@@ -46,11 +47,12 @@ impl Watch {
 		let status = Status::default().baton();
 
 		let backend = Backend::new(controls.1, status.0);
-		backend.start();
+		backend.clone().start();
 
 		Self {
 			controls: controls.0,
 			status: status.1,
+			backend,
 		}
 	}
 
@@ -81,6 +83,19 @@ impl Watch {
 
 	pub fn status(&self) -> WatchStatus {
 		WatchStatus::new(self.status.clone())
+	}
+
+	pub fn keydown(&mut self, key: String) {
+		let input = Input::KeyDown(Key::new(key));
+		self.backend.input(input);
+	}
+	pub fn keyup(&mut self, key: String) {
+		// let input = Input::KeyUp(Key::new(key));
+		// self.backend.input(input);
+	}
+	pub fn mouse(&mut self, x: i32, y: i32) {
+		// let input = Input::MouseMove(x, y);
+		// self.backend.input(input);
 	}
 }
 

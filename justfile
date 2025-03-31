@@ -92,7 +92,7 @@ pub-server name:
 	# Run ffmpeg and pipe the output to moq-karp
 	ffmpeg -hide_banner -v quiet \
 		-stream_loop -1 -re \
-		-i "dev/{{name}}.mp4" \
+		-i "dev/{{name}}.fmp4" \
 		-c copy \
 		-f mp4 \
 		-movflags cmaf+separate_moof+delay_moov+skip_trailer+frag_every_frame \

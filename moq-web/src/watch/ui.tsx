@@ -24,8 +24,6 @@ export class WatchUi extends MoqElement {
 	#context?: Context;
 
 	#controls: HTMLDivElement;
-	#pause: SlButton;
-	#menu: HTMLElement;
 	#fullscreen: SlButton;
 	#buffering: HTMLElement;
 	#paused: HTMLElement;
@@ -62,49 +60,6 @@ export class WatchUi extends MoqElement {
 				}
 				`}
 			</style>
-		);
-
-		this.#pause = (
-			<sl-button>
-				<sl-icon name="pause" label="Pause" />
-			</sl-button>
-		) as SlButton;
-
-		this.#pause.addEventListener("click", () => this.#togglePause());
-
-		const targetBuffer = (
-			<sl-range
-				label="Target Latency"
-				min={0}
-				max={4000}
-				step={100}
-				tooltipFormatter={(value) => `${(value / 1000).toFixed(1)}s`}
-			/>
-		) as SlRange;
-
-		targetBuffer.addEventListener("sl-change", () => {
-			if (this.#inner) {
-				this.#inner.latency = targetBuffer.value;
-			}
-		});
-
-		this.#menu = (
-			<sl-tooltip content="Settings">
-				<sl-dropdown placement="top-start" distance={2} hoist>
-					<sl-button slot="trigger">
-						<sl-icon name="gear" label="Settings" />
-					</sl-button>
-
-					<sl-menu>
-						<sl-menu-item>
-							Latency
-							<sl-menu slot="submenu">
-								<sl-menu-item>{targetBuffer}</sl-menu-item>
-							</sl-menu>
-						</sl-menu-item>
-					</sl-menu>
-				</sl-dropdown>
-			</sl-tooltip>
 		);
 
 		this.#fullscreen = (
@@ -193,13 +148,17 @@ export class WatchUi extends MoqElement {
 					transition: "opacity 0.3s ease, transform 0.3s ease",
 				}}
 			>
-				<div css={{ display: "flex", gap: "8px" }}>{this.#pause}</div>
 				<div css={{ display: "flex", gap: "8px" }}>
-					{this.#menu}
 					{this.#fullscreen}
 				</div>
 			</div>,
 		) as HTMLDivElement;
+
+		// this.addEventListener("keydown", (event) => this.#inner?.keydown(event));
+		document.addEventListener("keydown", (event) => this.#inner?.keydown(event));
+		document.addEventListener("keyup", (event) => this.#inner?.keyup(event));
+		document.addEventListener("mousemove", (event) => this.#inner?.mouse(event));
+
 	}
 
 	#togglePause() {
