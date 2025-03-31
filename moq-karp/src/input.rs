@@ -1,5 +1,8 @@
+use std::fmt::Display;
 use bytes::Bytes;
+use serde_with::formats::Format;
 
+#[derive(Clone)]
 pub struct Key {
     name: String
 }
@@ -15,6 +18,7 @@ impl Key {
     }
 }
 
+#[derive(Clone)]
 pub enum Input {
     KeyDown(Key),
     KeyUp(Key),
@@ -27,6 +31,16 @@ impl Into<Bytes> for Input {
             Input::KeyDown(key) => format!("keydown:{}", key.name()).into(),
             Input::KeyUp(key) => format!("keyup:{}", key.name()).into(),
             Input::MouseMove(x, y) => format!("mousemove:{},{}", x, y).into(),
+        }
+    }
+}
+
+impl Display for Input {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Input::KeyDown(key) => write!(f, "keydown:{}", key.name()),
+            Input::KeyUp(key) => write!(f, "keyup:{}", key.name()),
+            Input::MouseMove(x, y) => write!(f, "mousemove:{},{}", x, y),
         }
     }
 }

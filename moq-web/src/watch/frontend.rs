@@ -21,6 +21,12 @@ pub(super) struct Controls {
 	pub latency: Duration,
 }
 
+#[derive(Default, Clone, Baton)]
+pub(super) struct Inputs {
+	pub input: Option<Input>,
+}
+
+
 impl Default for Controls {
 	fn default() -> Self {
 		Self {
@@ -35,8 +41,8 @@ impl Default for Controls {
 #[wasm_bindgen]
 pub struct Watch {
 	controls: ControlsSend,
+	inputs: InputsSend,
 	status: StatusRecv,
-	backend: Backend,
 }
 
 #[wasm_bindgen]
@@ -44,15 +50,16 @@ impl Watch {
 	#[wasm_bindgen(constructor)]
 	pub fn new() -> Self {
 		let controls = Controls::default().baton();
+		let inputs = Inputs::default().baton();
 		let status = Status::default().baton();
 
-		let backend = Backend::new(controls.1, status.0);
-		backend.clone().start();
+		let backend = Backend::new(controls.1, inputs.1, status.0);
+		backend.start();
 
 		Self {
 			controls: controls.0,
+			inputs: inputs.0,
 			status: status.1,
-			backend,
 		}
 	}
 
@@ -87,15 +94,15 @@ impl Watch {
 
 	pub fn keydown(&mut self, key: String) {
 		let input = Input::KeyDown(Key::new(key));
-		self.backend.input(input);
+		self.inputs.input.set(Some(input));
 	}
 	pub fn keyup(&mut self, key: String) {
-		// let input = Input::KeyUp(Key::new(key));
-		// self.backend.input(input);
+		let input = Input::KeyUp(Key::new(key));
+		self.inputs.input.set(Some(input));
 	}
 	pub fn mouse(&mut self, x: i32, y: i32) {
-		// let input = Input::MouseMove(x, y);
-		// self.backend.input(input);
+		let input = Input::MouseMove(x, y);
+		self.inputs.input.set(Some(input));
 	}
 }
 

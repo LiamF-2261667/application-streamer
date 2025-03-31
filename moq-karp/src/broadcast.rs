@@ -212,7 +212,9 @@ impl BroadcastConsumer {
 	/// Sends an input to the broadcast.
 	pub fn input(&mut self, input: Input) -> Result<()> {
 		let mut group = self.input_track.append_group();
-		group.write_frame(input);
+		group.write_frame(input.clone());
+
+		tracing::info!("sent input: {}", input);
 
 		Ok(())
 	}
