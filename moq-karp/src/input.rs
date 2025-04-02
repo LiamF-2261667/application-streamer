@@ -22,6 +22,8 @@ pub enum Input {
     KeyDown(Key),
     KeyUp(Key),
     MouseMove(i32, i32),
+    MouseDown(i32),
+    MouseUp(i32),
 }
 
 impl Into<Bytes> for Input {
@@ -30,6 +32,8 @@ impl Into<Bytes> for Input {
             Input::KeyDown(key) => format!("keydown:{}", key.name()).into(),
             Input::KeyUp(key) => format!("keyup:{}", key.name()).into(),
             Input::MouseMove(x, y) => format!("mousemove:{},{}", x, y).into(),
+            Input::MouseDown(button) => format!("mousedown:{}", button).into(),
+            Input::MouseUp(button) => format!("mouseup:{}", button).into(),
         }
     }
 }
@@ -50,6 +54,8 @@ impl Into<Input> for Bytes {
                 let y = parts.next().unwrap().parse().unwrap();
                 Input::MouseMove(x, y)
             },
+            "mousedown" => Input::MouseDown(value.parse().unwrap()),
+            "mouseup" => Input::MouseUp(value.parse().unwrap()),
             _ => panic!("invalid input: {}", input)
         }
     }
@@ -61,6 +67,8 @@ impl Display for Input {
             Input::KeyDown(key) => write!(f, "keydown:{}", key.name()),
             Input::KeyUp(key) => write!(f, "keyup:{}", key.name()),
             Input::MouseMove(x, y) => write!(f, "mousemove:{},{}", x, y),
+            Input::MouseDown(button) => write!(f, "mousedown:{}", button),
+            Input::MouseUp(button) => write!(f, "mouseup:{}", button),
         }
     }
 }

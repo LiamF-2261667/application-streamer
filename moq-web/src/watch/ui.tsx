@@ -157,7 +157,9 @@ export class WatchUi extends MoqElement {
 		// this.addEventListener("keydown", (event) => this.#inner?.keydown(event));
 		document.addEventListener("keydown", (event) => this.#inner?.keydown(event));
 		document.addEventListener("keyup", (event) => this.#inner?.keyup(event));
-		document.addEventListener("mousemove", (event) => this.#inner?.mouse(event));
+		document.addEventListener("mousemove", (event) => this.#inner?.mousemove(event));
+		document.addEventListener("mousedown", (event) => this.#inner?.mousedown(event));
+		document.addEventListener("mouseup", (event) => this.#inner?.mouseup(event));
 
 	}
 

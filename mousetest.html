@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mouse Test</title>
+    <style>
+        * {
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #171717;
+            color: white;
+        }
+
+        #mouse {
+            text-align: center;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Center vertically */
+        }
+
+        .mouse-data {
+            display: flex;
+            justify-content: space-between;
+            width: 200px; /* Adjust width as needed */
+        }
+
+        #circle {
+            position: absolute;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: white;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="mouse"></div>
+    <div id="circle"></div>
+    <script>
+        const mouse = document.getElementById('mouse');
+        const circle = document.getElementById('circle');
+
+        document.addEventListener('mousemove', function(e) {
+            let text = "";
+            text += 'screenX: ' + e.screenX + ' screenY: ' + e.screenY + '<br>';
+            text += 'pageX: ' + e.pageX + ' pageY: ' + e.pageY + '<br>';
+            text += 'clientX: ' + e.clientX + ' clientY: ' + e.clientY + '<br>';
+            text += 'offsetX: ' + e.offsetX + ' offsetY: ' + e.offsetY + '<br>';
+            text += 'x: ' + e.x + ' y: ' + e.y + '<br><br>';
+            text += 'movementX: ' + e.movementX + ' movementY: ' + e.movementY + '<br>';
+
+            let circle_pos = calculate_mouse_pos(e);
+            circle.style.left = circle_pos.x + 'px';
+            circle.style.top = circle_pos.y + 'px';
+
+            mouse.innerHTML = text;
+        });
+
+        function calculate_mouse_pos(e) {
+            return {
+                x: e.pageX,
+                y: e.pageY
+            };
+        }
+    </script>
+</body>
+</html>

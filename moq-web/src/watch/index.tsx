@@ -86,8 +86,14 @@ export class Watch extends MoqElement {
 	public keyup(event: KeyboardEvent) {
 		this.#worker.then((worker) => worker.keyup(event.key));
 	}
-	public mouse(event: MouseEvent) {
-		this.#worker.then((worker) => worker.mouse(event.x, event.y));
+	public mousemove(event: MouseEvent) {
+		this.#worker.then((worker) => worker.mousemove(event.x, event.y));
+	}
+	public mousedown(event: MouseEvent) {
+		this.#worker.then((worker) => worker.mousedown(event.button));
+	}
+	public mouseup(event: MouseEvent) {
+		this.#worker.then((worker) => worker.mouseup(event.button));
 	}
 
 	private urlChange(value: string) {

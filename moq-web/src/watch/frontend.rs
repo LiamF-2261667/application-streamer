@@ -100,8 +100,16 @@ impl Watch {
 		let input = Input::KeyUp(Key::new(key));
 		self.inputs.input.set(Some(input));
 	}
-	pub fn mouse(&mut self, x: i32, y: i32) {
+	pub fn mousemove(&mut self, x: i32, y: i32) {
 		let input = Input::MouseMove(x, y);
+		self.inputs.input.set(Some(input));
+	}
+	pub fn mousedown(&mut self, button: i32) {
+		let input = Input::MouseDown(button);
+		self.inputs.input.set(Some(input));
+	}
+	pub fn mouseup(&mut self, button: i32) {
+		let input = Input::MouseUp(button);
 		self.inputs.input.set(Some(input));
 	}
 }
