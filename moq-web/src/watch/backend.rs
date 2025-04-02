@@ -1,6 +1,5 @@
-use moq_karp::{BroadcastConsumer, Input};
+use moq_karp::{BroadcastConsumer};
 use wasm_bindgen_futures::spawn_local;
-use moq_async::Lock;
 use super::{ControlsRecv, InputsRecv, Renderer, StatusSend, Video};
 use crate::{Connect, ConnectionStatus, Error, Result};
 
@@ -41,19 +40,12 @@ impl Backend {
 		});
 	}
 
-	// pub fn input(&mut self, input: Input) {
-	// 	let mut state = self.state.lock();
-	// 	if let Some(broadcast) = &mut state.broadcast {
-	// 		broadcast.input(input);
-	// 	}
-	// }
-
 	async fn run(&mut self) -> Result<()> {
 		loop {
 			tokio::select! {
 				input = self.inputs.input.next() => {
 					if let Some(broadcast) = &mut self.broadcast {
-						broadcast.input(input.ok_or("closed").expect("input").expect("input"));
+						let _ = broadcast.input(input.ok_or("closed").expect("input").expect("input"));
 					}
 				}
 				url = self.controls.url.next() => {

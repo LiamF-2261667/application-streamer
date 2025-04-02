@@ -23,7 +23,7 @@ impl<T: AsyncRead + Unpin> BroadcastClient<T> {
 		let url = Url::parse(&self.url).context("invalid URL")?;
 		let path = url.path().to_string();
 
-		let mut broadcast = BroadcastProducer::new(path)?;
+		let mut broadcast = BroadcastProducer::new(path, None)?;
 
 		let mut import = Import::new(broadcast.clone());
 		import

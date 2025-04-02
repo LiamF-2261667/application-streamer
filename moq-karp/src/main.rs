@@ -56,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
 async fn publish(config: Config, url: String) -> anyhow::Result<()> {
 	match config.server {
 		true => {
-			BroadcastServer::new(config.bind, config.tls, url, tokio::io::stdin())
+			BroadcastServer::new(config.bind, config.tls, url, tokio::io::stdin(), None)
 				.run()
 				.await
 		}

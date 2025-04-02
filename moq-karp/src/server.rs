@@ -1,6 +1,6 @@
 use crate::cmaf::Import;
 use crate::fingerprint::FingerprintServer;
-use crate::BroadcastProducer;
+use crate::{BroadcastProducer, InputHandler};
 use anyhow::Context;
 use moq_native::quic;
 use moq_native::quic::Server;
@@ -14,11 +14,12 @@ pub struct BroadcastServer<T: AsyncRead + Unpin> {
 	tls: moq_native::tls::Args,
 	url: String,
 	input: T,
+	input_handler: Option<Box<dyn InputHandler>>,
 }
 
 impl<T: AsyncRead + Unpin> BroadcastServer<T> {
-	pub fn new(bind: SocketAddr, tls: moq_native::tls::Args, url: String, input: T) -> Self {
-		Self { bind, tls, url, input }
+	pub fn new(bind: SocketAddr, tls: moq_native::tls::Args, url: String, input: T, input_handler: Option<Box<dyn InputHandler>>) -> Self {
+		Self { bind, tls, url, input, input_handler }
 	}
 
 	pub async fn run(&mut self) -> anyhow::Result<()> {
@@ -49,7 +50,7 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 		let url = Url::parse(&self.url).context("invalid URL")?;
 		let path = url.path().to_string();
 
-		let broadcast = BroadcastProducer::new(path)?;
+		let broadcast = BroadcastProducer::new(path, self.input_handler.take())?;
 
 		let mut import = Import::new(broadcast.clone());
 		import

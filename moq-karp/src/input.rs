@@ -1,6 +1,5 @@
 use std::fmt::Display;
 use bytes::Bytes;
-use serde_with::formats::Format;
 
 #[derive(Clone)]
 pub struct Key {
@@ -31,6 +30,27 @@ impl Into<Bytes> for Input {
             Input::KeyDown(key) => format!("keydown:{}", key.name()).into(),
             Input::KeyUp(key) => format!("keyup:{}", key.name()).into(),
             Input::MouseMove(x, y) => format!("mousemove:{},{}", x, y).into(),
+        }
+    }
+}
+
+impl Into<Input> for Bytes {
+    fn into(self) -> Input {
+        let input = String::from_utf8(self.to_vec()).unwrap();
+        let mut parts = input.split(':');
+        let action = parts.next().unwrap();
+        let value = parts.next().unwrap();
+
+        match action {
+            "keydown" => Input::KeyDown(Key::new(value)),
+            "keyup" => Input::KeyUp(Key::new(value)),
+            "mousemove" => {
+                let mut parts = value.split(',');
+                let x = parts.next().unwrap().parse().unwrap();
+                let y = parts.next().unwrap().parse().unwrap();
+                Input::MouseMove(x, y)
+            },
+            _ => panic!("invalid input: {}", input)
         }
     }
 }
