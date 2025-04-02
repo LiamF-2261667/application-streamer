@@ -6,7 +6,8 @@ const RESOLUTION: moq_karp::Dimensions = moq_karp::Dimensions { width: 1920, hei
 const PORT: u16 = 4443;
 const FPS: u32 = 30;
 const DISPLAY: u32 = 99;
-const TEST_VIDEO_FILE_LOCATION: &str = "C:/Users/liamf/Documents/Bach3/Bachelorproef/application-streamer/dev/bbb.fmp4";
+// const TEST_VIDEO_FILE_LOCATION: &str = "C:/Users/liamf/Documents/Bach3/Bachelorproef/application-streamer/dev/bbb.fmp4";
+const TEST_VIDEO_FILE_LOCATION: &str = "C:/AAA_Liam/School/Bach3/Bachelorproef/application-streamer/dev/bbb.fmp4";
 
 /// Stream video file with moq-karp
 #[tokio::main]

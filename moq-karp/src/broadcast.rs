@@ -1,13 +1,8 @@
-use std::fmt::format;
 use crate::track::TrackConsumer;
 use crate::{Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
 use derive_more::Debug;
 use moq_async::Lock;
 use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, GroupOrder, Session};
-
-pub trait InputHandler {
-	fn handle(&self, input: Input, session: Session) -> Result<()>;
-}
 
 struct BroadcastProducerState {
 	catalog: CatalogProducer,
@@ -21,11 +16,10 @@ pub struct BroadcastProducer {
 	pub path: String,
 	id: u64,
 	state: Lock<BroadcastProducerState>,
-	input_handler: Option<Box<dyn InputHandler>>,
 }
 
 impl BroadcastProducer {
-	pub fn new(path: String, input_handler: Option<Box<dyn InputHandler>>) -> Result<Self> {
+	pub fn new(path: String) -> Result<Self> {
 		// Generate a "unique" ID for this broadcast session.
 		// If we crash, then the viewers will automatically reconnect to the new ID.
 		let id = web_time::SystemTime::now()
@@ -50,7 +44,7 @@ impl BroadcastProducer {
 			subscribers: vec![],
 		});
 
-		Ok(Self { path, id, state, input_handler })
+		Ok(Self { path, id, state })
 	}
 
 	/// Add a session to the broadcast.
@@ -96,7 +90,7 @@ impl BroadcastProducer {
 	}
 
 	/// Handle inputs from the session.
-	async fn handle_inputs(self, mut session: Session) -> Result<()> {
+	async fn handle_inputs(self, session: Session) -> Result<()> {
 		let input_track = moq_transfork::Track{
 			path: format!("{}/input.karp", self.path),
 			priority: 0,
@@ -111,11 +105,9 @@ impl BroadcastProducer {
 					// Use the new group.
 					group.replace(new_group?);
 				},
-				Some(frame) = async { group.clone()?.next_frame().await.transpose() } => {
-					let input: Input = frame?.read_all().await?.into();
-					if let Some(input_handler) = &self.input_handler {
-						input_handler.handle(input, session.clone())?
-					}
+				Some(frame) = async { group.take()?.read_frame().await.transpose() } => {
+					let input: Input = frame?.into();
+					tracing::info!("{}", input);
 				},
 				else => return Ok(()),
 			}

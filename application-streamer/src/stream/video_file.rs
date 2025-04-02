@@ -1,6 +1,11 @@
 use crate::FFmpegStream;
 
 pub fn new(file_location: &str) -> FFmpegStream {
+    // Test if the file location exists
+    if !std::path::Path::new(file_location).exists() {
+        panic!("File location does not exist: {}", file_location);
+    }
+
     FFmpegStream::new(vec![
         "-hide_banner",
         "-v", "quiet",
