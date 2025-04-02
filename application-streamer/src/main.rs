@@ -49,6 +49,7 @@ async fn main() -> anyhow::Result<()> {
 	sleep(std::time::Duration::from_secs(1));
 
 	let mut input_streamer = MoQInputStreamer::new(PORT, display_stream.stdout());
+	let input_buffer = input_streamer.input_buffer();
 	tokio::spawn(async move {
 		handle_input(input_buffer, application).await;
 	});
