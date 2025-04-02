@@ -8,19 +8,27 @@ use moq_transfork::web_transport;
 use std::net::SocketAddr;
 use tokio::io::AsyncRead;
 use url::Url;
+use crate::broadcast::InputHandlerRecv;
 
 pub struct BroadcastServer<T: AsyncRead + Unpin> {
 	bind: SocketAddr,
 	tls: moq_native::tls::Args,
 	url: String,
 	input: T,
+	broadcast: BroadcastProducer,
 }
 
 impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 	pub fn new(bind: SocketAddr, tls: moq_native::tls::Args, url: String, input: T) -> Self {
-		Self { bind, tls, url, input }
+		// Create the broadcast
+		let parsed_url = Url::parse(&url).context("invalid URL").expect("invalid URL");
+		let path = parsed_url.path().to_string();
+		let broadcast = BroadcastProducer::new(path).expect("failed to create broadcast");
+
+		Self { bind, tls, url, input, broadcast }
 	}
 
+	/// Runs the server.
 	pub async fn run(&mut self) -> anyhow::Result<()> {
 		self.bind = tokio::net::lookup_host(self.bind)
 			.await
@@ -45,28 +53,29 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 			web.run().await.expect("failed to run web server");
 		});
 
-		// Create the broadcast
-		let url = Url::parse(&self.url).context("invalid URL")?;
-		let path = url.path().to_string();
-
-		let broadcast = BroadcastProducer::new(path)?;
-
-		let mut import = Import::new(broadcast.clone());
+		// Initialize the broadcast
+		let mut import = Import::new(self.broadcast.clone());
 		import
 			.init_from(&mut self.input)
 			.await
 			.context("failed to initialize cmaf from input")?;
 
-		self.accept(server, broadcast)?;
+		self.accept(server)?;
 		import.read_from(&mut self.input).await?; // Blocking method
 
 		Ok(())
 	}
 
-	fn accept(&mut self, mut server: Server, mut broadcast: BroadcastProducer) -> anyhow::Result<()> {
+	/// Returns a receiver for the input buffer.
+	pub fn input_buffer(&self) -> InputHandlerRecv {
+		self.broadcast.input_buffer()
+	}
+
+	fn accept(&mut self, mut server: Server) -> anyhow::Result<()> {
 		tracing::info!(addr = %self.bind, "listening");
 
 		let mut conn_id = 0;
+		let mut broadcast = self.broadcast.clone();
 
 		tokio::spawn(async move {
 			while let Some(conn) = server.accept().await {

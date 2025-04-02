@@ -1,5 +1,4 @@
 mod audio;
-mod broadcast;
 mod catalog;
 #[cfg(feature = "webserver")]
 mod client;
@@ -13,6 +12,7 @@ mod server;
 mod track;
 mod video;
 mod input;
+mod broadcast;
 
 pub use audio::*;
 pub use broadcast::*;

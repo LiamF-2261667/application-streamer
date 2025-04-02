@@ -3,6 +3,12 @@ use crate::{Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
 use derive_more::Debug;
 use moq_async::Lock;
 use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, GroupOrder, Session};
+use baton::Baton;
+
+#[derive(Default, Clone, Baton)]
+pub struct InputHandler {
+	pub input: Option<Input>,
+}
 
 struct BroadcastProducerState {
 	catalog: CatalogProducer,
@@ -16,6 +22,7 @@ pub struct BroadcastProducer {
 	pub path: String,
 	id: u64,
 	state: Lock<BroadcastProducerState>,
+	input_handler: (InputHandlerSend, InputHandlerRecv),
 }
 
 impl BroadcastProducer {
@@ -44,7 +51,15 @@ impl BroadcastProducer {
 			subscribers: vec![],
 		});
 
-		Ok(Self { path, id, state })
+		// Create the input handler
+		let input_handler = InputHandler::default().baton();
+
+		Ok(Self { path, id, state, input_handler })
+	}
+
+	/// Returns the input buffer.
+	pub fn input_buffer(&self) -> InputHandlerRecv {
+		self.input_handler.1.clone()
 	}
 
 	/// Add a session to the broadcast.
@@ -90,7 +105,7 @@ impl BroadcastProducer {
 	}
 
 	/// Handle inputs from the session.
-	async fn handle_inputs(self, session: Session) -> Result<()> {
+	async fn handle_inputs(mut self, session: Session) -> Result<()> {
 		let input_track = moq_transfork::Track{
 			path: format!("{}/input.karp", self.path),
 			priority: 0,
@@ -107,7 +122,7 @@ impl BroadcastProducer {
 				},
 				Some(frame) = async { group.take()?.read_frame().await.transpose() } => {
 					let input: Input = frame?.into();
-					tracing::info!("{}", input);
+					self.input_handler.0.input.set(Some(input));
 				},
 				else => return Ok(()),
 			}
@@ -247,8 +262,6 @@ impl BroadcastConsumer {
 	pub fn input(&mut self, input: Input) -> Result<()> {
 		let mut group = self.input_track.append_group();
 		group.write_frame(input.clone());
-
-		tracing::info!("sent input: {}", input);
 
 		Ok(())
 	}
