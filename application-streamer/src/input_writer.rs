@@ -21,7 +21,5 @@ impl InputWriter {
                 file.write_all(&buffer[..n])?;
             }
         }
-
-        Ok(())
     }
 }

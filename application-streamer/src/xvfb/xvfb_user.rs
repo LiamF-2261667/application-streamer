@@ -1,5 +1,5 @@
 use moq_karp::Input;
-use crate::js_to_xdotool;
+use crate::{js_mouse_to_xdotool, js_to_xdotool};
 use crate::xvfb::Xvfb;
 
 pub struct XvfbUser {
@@ -47,8 +47,8 @@ fn input_to_cmd(input: Input) -> String {
         Input::KeyDown(key) => format!("{} keydown {}", base_cmd, js_to_xdotool(key.name())),
         Input::KeyUp(key) => format!("{} keyup {}", base_cmd, js_to_xdotool(key.name())),
         Input::MouseMove(x, y) => format!("{} mousemove {} {}", base_cmd, x, y),
-        Input::MouseDown(button) => format!("{} mousedown {}", base_cmd, button),
-        Input::MouseUp(button) => format!("{} mouseup {}", base_cmd, button),
+        Input::MouseDown(button) => format!("{} mousedown {}", base_cmd, js_mouse_to_xdotool(button)),
+        Input::MouseUp(button) => format!("{} mouseup {}", base_cmd, js_mouse_to_xdotool(button)),
     }
 }
 

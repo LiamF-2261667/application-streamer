@@ -13,7 +13,6 @@ use crate::broadcast::InputHandlerRecv;
 pub struct BroadcastServer<T: AsyncRead + Unpin> {
 	bind: SocketAddr,
 	tls: moq_native::tls::Args,
-	url: String,
 	input: T,
 	broadcast: BroadcastProducer,
 }
@@ -25,7 +24,7 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 		let path = parsed_url.path().to_string();
 		let broadcast = BroadcastProducer::new(path).expect("failed to create broadcast");
 
-		Self { bind, tls, url, input, broadcast }
+		Self { bind, tls, input, broadcast }
 	}
 
 	/// Runs the server.

@@ -100,7 +100,14 @@ impl Watch {
 		let input = Input::KeyUp(Key::new(key));
 		self.inputs.input.set(Some(input));
 	}
-	pub fn mousemove(&mut self, x: i32, y: i32) {
+	pub fn mousemove(&mut self, x: i32, y: i32, page_width: i32, page_height: i32) {
+		// transform to stream coordinates
+		// TODO: Do this in the backend
+		let x = ((x as f64 / page_width as f64) * 1920.0) as i32;
+		let y = ((y as f64 / page_height as f64) * 1080.0) as i32;
+
+		tracing::info!("mousemove: {} {}", page_width, page_height);
+
 		let input = Input::MouseMove(x, y);
 		self.inputs.input.set(Some(input));
 	}

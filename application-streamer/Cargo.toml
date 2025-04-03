@@ -9,6 +9,8 @@ moq-native = { version = "0.6", path = "../moq-native" }
 
 tokio = "1.43.0"
 
+phf = { version = "0.11", features = ["macros"] }
+
 # Error handling
 anyhow = { version = "1", features = ["backtrace"] }
 url = "2.5.4"
