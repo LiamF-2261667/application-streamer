@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use std::net;
 
-use moq_karp::{BroadcastClient, BroadcastServer};
+use moq_karp::{debug, BroadcastClient, BroadcastServer};
 
 #[derive(Parser, Clone)]
 struct Config {
@@ -43,6 +43,8 @@ pub enum Command {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+	debug::init();
+
 	let config = Config::parse();
 	config.log.init();
 
@@ -56,7 +58,7 @@ async fn main() -> anyhow::Result<()> {
 async fn publish(config: Config, url: String) -> anyhow::Result<()> {
 	match config.server {
 		true => {
-			BroadcastServer::new(config.bind, config.tls, url, tokio::io::stdin(), None)
+			BroadcastServer::new(config.bind, config.tls, url, tokio::io::stdin())
 				.run()
 				.await
 		}

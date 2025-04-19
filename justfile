@@ -29,7 +29,7 @@ setup:
 
 # Build the application streamer for linux
 application-streamer:
-    docker compose down --build
+    docker compose up --build
 
 # Run the relay, web server, and publish bbb.
 all:

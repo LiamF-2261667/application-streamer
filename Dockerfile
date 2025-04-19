@@ -29,14 +29,14 @@ EXPOSE 4443
 WORKDIR /usr/bin/application_streamer
 
 ## Copy all the required files to compile appliction-streamer (Or mount the directories)
-#COPY ./application-streamer ./application_streamer
-#COPY ./moq-async ./moq-async
-#COPY ./moq-karp ./moq-karp
-#COPY ./moq-native ./moq-native
-#COPY ./moq-transfork ./moq-transfork
-#COPY ./mp4-atom ./mp4-atom
-#COPY ./Cargo.toml ./Cargo.toml
-#COPY ./Cargo.lock ./Cargo.lock
+COPY ./application-streamer ./application-streamer
+COPY ./moq-async ./moq-async
+COPY ./moq-karp ./moq-karp
+COPY ./moq-native ./moq-native
+COPY ./moq-transfork ./moq-transfork
+COPY ./mp4-atom ./mp4-atom
+COPY ./Cargo-dev.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
 
 ## Run the application
 CMD ["cargo", "run", "--bin", "application-streamer"]
