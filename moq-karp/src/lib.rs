@@ -31,6 +31,7 @@ pub use video::*;
 pub use input::*;
 
 pub mod cmaf;
+pub mod debug;
 
 // export the moq-transfork version in use
 pub use moq_transfork;

@@ -1,7 +1,7 @@
 use std::env;
 use std::thread::sleep;
 use application_streamer::{stream, FFmpegStream, InputWriter, MoQInputStreamer, Xvfb, XvfbUser};
-use moq_karp::InputHandlerRecv;
+use moq_karp::{debug, Input, InputHandlerRecv};
 
 const RESOLUTION: moq_karp::Dimensions = moq_karp::Dimensions { width: 1920, height: 1080 };
 const PORT: u16 = 4443;
@@ -30,6 +30,8 @@ const TEST_VIDEO_FILE_LOCATION: &str = "C:/AAA_Liam/School/Bach3/Bachelorproef/a
 ///Stream xvfb with moq-karp
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+	debug::init();
+
 	// always remove the first argument
 	let args: Vec<String> = env::args().skip(1).collect();
 	let command = match args.len() {
@@ -66,7 +68,14 @@ async fn handle_input(mut input_buffer: InputHandlerRecv, application: XvfbUser)
 		match input_buffer.input.next().await {
 			Some(input) => {
 				let input = input.expect("failed to read input");
-				application.handle(input);
+				application.handle(input.clone());
+
+				// DEBUG: start recording actions on space key press
+				if let Input::KeyDown(key) = input {
+					if key.name().to_lowercase() == "space" {
+						debug::start_recording_actions();
+					}
+				}
 			}
 			None => { }
 		}

@@ -282,6 +282,11 @@ impl Renderer {
 	}
 
 	pub fn push(&mut self, frame: VideoFrame) {
+		let inner = frame.inner().clone().expect("frame.inner.clone");
+		tracing::info!("{}", inner.to_string());
+		// if .expect(".as_string") == "end record" {
+		// 	tracing::info!("end record");
+		// }
 		self.state.borrow_mut().push(frame);
 	}
 }
