@@ -5,7 +5,7 @@ use url::Url;
 use wasm_bindgen::prelude::*;
 
 use web_sys::OffscreenCanvas;
-use moq_karp::{Input, Key};
+use moq_karp::{debug, Input, Key};
 use super::{Backend, StatusRecv, WatchStatus};
 use crate::{watch::Status, Error, Result};
 
@@ -52,6 +52,8 @@ impl Watch {
 		let controls = Controls::default().baton();
 		let inputs = Inputs::default().baton();
 		let status = Status::default().baton();
+
+		debug::init();
 
 		let backend = Backend::new(controls.1, inputs.1, status.0);
 		backend.start();
@@ -106,7 +108,7 @@ impl Watch {
 		let x = ((x as f64 / page_width as f64) * 1920.0) as i32;
 		let y = ((y as f64 / page_height as f64) * 1080.0) as i32;
 
-		tracing::info!("mousemove: {} {}", page_width, page_height);
+		// tracing::info!("mousemove: {} {}", page_width, page_height);
 
 		let input = Input::MouseMove(x, y);
 		self.inputs.input.set(Some(input));

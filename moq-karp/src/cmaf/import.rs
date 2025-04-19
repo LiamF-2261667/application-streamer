@@ -1,8 +1,5 @@
 use super::{Error, Result};
-use crate::{
-	Audio, BroadcastProducer, Dimensions, Frame, Timestamp, Track, TrackProducer, Video, VideoCodec, AAC, AV1, H264,
-	H265, VP9,
-};
+use crate::{debug, Audio, BroadcastProducer, Dimensions, Frame, Timestamp, Track, TrackProducer, Video, VideoCodec, AAC, AV1, H264, H265, VP9};
 use bytes::{Bytes, BytesMut};
 use mp4_atom::{Any, AsyncReadFrom, Atom, DecodeMaybe, Esds, Mdat, Moof, Moov, Tfdt, Trak, Trun};
 use std::{collections::HashMap, time::Duration};
@@ -296,6 +293,8 @@ impl Import {
 		let mut buffer = BytesMut::new();
 
 		while input.read_buf(&mut buffer).await? > 0 {
+			debug::record_action("reading buffer");
+
 			let n = self.parse_inner(&buffer)?;
 			let _ = buffer.split_to(n);
 		}
@@ -445,6 +444,15 @@ impl Import {
 					payload,
 				};
 				track.write(frame);
+				if debug::is_recording_actions() {
+					debug::record_action("writing frame");
+					debug::stop_recording_actions();
+					track.write(Frame{
+						timestamp,
+						keyframe,
+						payload: debug::end_record_bytes(),
+					});
+				}
 
 				dts += duration as u64;
 				offset += size;
@@ -457,6 +465,8 @@ impl Import {
 				}
 			}
 		}
+
+
 
 		if let (Some(min), Some(max)) = (min_timestamp, max_timestamp) {
 			let diff = max - min;
