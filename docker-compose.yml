@@ -5,21 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4443:4443"
-    networks:
-      - default
+    network_mode: host
     volumes:
-      - ./application-streamer:/usr/bin/application_streamer/application-streamer
-      - ./moq-async:/usr/bin/application_streamer/moq-async
-      - ./moq-karp:/usr/bin/application_streamer/moq-karp
-      - ./moq-native:/usr/bin/application_streamer/moq-native
-      - ./moq-transfork:/usr/bin/application_streamer/moq-transfork
-      - ./mp4-atom:/usr/bin/application_streamer/mp4-atom
-      - ./Cargo-dev.toml:/usr/bin/application_streamer/Cargo.toml
-      - ./Cargo.lock:/usr/bin/application_streamer/Cargo.lock
+      - .:/usr/bin/application_streamer/
       - target:/usr/bin/application_streamer/target
-
-networks:
-  default:
+      - dist:/usr/bin/application_streamer/dist
+      - node_modules:/usr/bin/application_streamer/node_modules
 
 volumes:
   target:
+  dist:
+  node_modules:

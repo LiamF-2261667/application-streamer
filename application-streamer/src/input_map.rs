@@ -24,7 +24,7 @@ static JS_TO_XDOTOOL_MAP: phf::Map<&'static str, &'static str> = phf_map! {
     "Slash" => "KP_Slash",
     "Semicolon" => "KP_Colon",
     "Quote" => "KP_Quote",
-    "Space" => "space",
+    " " => "space",
 };
 
 pub fn js_to_xdotool(js: &str) -> String {

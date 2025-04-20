@@ -72,7 +72,8 @@ async fn handle_input(mut input_buffer: InputHandlerRecv, application: XvfbUser)
 
 				// DEBUG: start recording actions on space key press
 				if let Input::KeyDown(key) = input {
-					if key.name().to_lowercase() == "space" {
+					if key.name().to_lowercase() == " " {
+						tracing::info!("Space key pressed, starting recording actions");
 						debug::start_recording_actions();
 					}
 				}
