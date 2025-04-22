@@ -30,12 +30,10 @@ const TEST_VIDEO_FILE_LOCATION: &str = "C:/AAA_Liam/School/Bach3/Bachelorproef/a
 ///Stream xvfb with moq-karp
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	debug::init();
-
 	// always remove the first argument
 	let args: Vec<String> = env::args().skip(1).collect();
 	let command = match args.len() {
-		0 => "google-chrome --no-sandbox https://www.w3schools.com/html/mov_bbb.mp4",
+		0 => "google-chrome --no-sandbox https://hamtv.com/latencytest.html",
 		_ => &args.join(" ")
 	};
 
@@ -68,13 +66,20 @@ async fn handle_input(mut input_buffer: InputHandlerRecv, application: XvfbUser)
 		match input_buffer.input.next().await {
 			Some(input) => {
 				let input = input.expect("failed to read input");
-				application.handle(input.clone());
 
 				// DEBUG: start recording actions on space key press
-				if let Input::KeyDown(key) = input {
+				if let Input::KeyDown(key) = input.clone() {
 					if key.name().to_lowercase() == " " {
-						tracing::info!("Space key pressed, starting recording actions");
+						tracing::info!("Space key press received, starting recording actions");
 						debug::start_recording_actions();
+					}
+				}
+
+				application.handle(input.clone());
+
+				if let Input::KeyDown(key) = input.clone() {
+					if key.name().to_lowercase() == " " {
+						tracing::info!("Space key executed by xdotool");
 					}
 				}
 			}

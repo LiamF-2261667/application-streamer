@@ -5,7 +5,7 @@ use url::Url;
 use wasm_bindgen::prelude::*;
 
 use web_sys::OffscreenCanvas;
-use moq_karp::{debug, Input, Key};
+use moq_karp::{Input, Key};
 use super::{Backend, StatusRecv, WatchStatus};
 use crate::{watch::Status, Error, Result};
 
@@ -52,8 +52,6 @@ impl Watch {
 		let controls = Controls::default().baton();
 		let inputs = Inputs::default().baton();
 		let status = Status::default().baton();
-
-		debug::init();
 
 		let backend = Backend::new(controls.1, inputs.1, status.0);
 		backend.start();

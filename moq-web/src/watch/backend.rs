@@ -1,4 +1,4 @@
-use moq_karp::{debug, BroadcastConsumer};
+use moq_karp::{BroadcastConsumer};
 use wasm_bindgen_futures::spawn_local;
 use super::{ControlsRecv, InputsRecv, Renderer, StatusSend, Video};
 use crate::{Connect, ConnectionStatus, Error, Result};

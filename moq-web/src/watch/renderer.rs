@@ -1,11 +1,11 @@
 use std::{cell::RefCell, collections::VecDeque, rc::Rc, time::Duration};
-
 use moq_karp::Dimensions;
 use wasm_bindgen::{prelude::*, JsCast};
 use wasm_bindgen_futures::spawn_local;
 use web_codecs::{Timestamp, VideoFrame};
 use web_sys::{OffscreenCanvas, OffscreenCanvasRenderingContext2d};
-use web_time::Instant;
+use web_time::{Instant, SystemTime};
+
 
 use super::{ControlsRecv, RendererStatus, StatusSend};
 
@@ -282,11 +282,6 @@ impl Renderer {
 	}
 
 	pub fn push(&mut self, frame: VideoFrame) {
-		let inner = frame.inner().clone().expect("frame.inner.clone");
-		tracing::info!("{}", inner.to_string());
-		// if .expect(".as_string") == "end record" {
-		// 	tracing::info!("end record");
-		// }
 		self.state.borrow_mut().push(frame);
 	}
 }

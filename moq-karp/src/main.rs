@@ -43,8 +43,6 @@ pub enum Command {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	debug::init();
-
 	let config = Config::parse();
 	config.log.init();
 

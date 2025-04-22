@@ -439,20 +439,14 @@ impl Import {
 				let payload = mdat.slice(offset..(offset + size));
 
 				let frame = Frame {
-					timestamp,
+					timestamp: timestamp.clone(),
 					keyframe,
 					payload,
 				};
+				debug::record_action(&format!("writing frame, timestap: {:?}", timestamp.as_millis()));
 				track.write(frame);
-				if debug::is_recording_actions() {
-					debug::record_action("writing frame");
-					debug::stop_recording_actions();
-					track.write(Frame{
-						timestamp,
-						keyframe,
-						payload: debug::end_record_bytes(),
-					});
-				}
+				debug::record_action("finished MoQ calls");
+				debug::stop_recording_actions();
 
 				dts += duration as u64;
 				offset += size;

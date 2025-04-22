@@ -1,5 +1,5 @@
 use crate::track::TrackConsumer;
-use crate::{debug, Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
+use crate::{Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
 use derive_more::Debug;
 use moq_async::Lock;
 use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, GroupOrder, Session};

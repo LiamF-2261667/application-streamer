@@ -19,5 +19,6 @@ RUN rm google-chrome-stable_current_amd64.deb
 
 EXPOSE 4443
 
-COPY ./target /usr/bin/application_streamer
-#ENTRYPOINT ["/usr/bin/application_streamer/application_streamer"]
+COPY ./target/x86_64-unknown-linux-gnu/debug /usr/bin/application-streamer
+
+CMD ["usr/bin/application-streamer/application-streamer"]

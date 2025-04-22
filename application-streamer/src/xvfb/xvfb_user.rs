@@ -42,10 +42,11 @@ fn execute(cmd: &str) {
 }
 
 fn input_to_cmd(input: Input) -> String {
-    let base_cmd = "xdotool ";
+    let base_cmd = "xdotool";
+    let options = "--delay 0";
     match input {
-        Input::KeyDown(key) => format!("{} keydown {}", base_cmd, js_to_xdotool(key.name())),
-        Input::KeyUp(key) => format!("{} keyup {}", base_cmd, js_to_xdotool(key.name())),
+        Input::KeyDown(key) => format!("{} keydown {} {}", base_cmd, options, js_to_xdotool(key.name())),
+        Input::KeyUp(key) => format!("{} keyup {} {}", base_cmd, options, js_to_xdotool(key.name())),
         Input::MouseMove(x, y) => format!("{} mousemove {} {}", base_cmd, x, y),
         Input::MouseDown(button) => format!("{} mousedown {}", base_cmd, js_mouse_to_xdotool(button)),
         Input::MouseUp(button) => format!("{} mouseup {}", base_cmd, js_mouse_to_xdotool(button)),
