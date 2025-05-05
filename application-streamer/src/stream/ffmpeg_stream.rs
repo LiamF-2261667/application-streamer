@@ -23,6 +23,10 @@ impl FFmpegStream {
     pub fn start(&mut self) {
         self.ffmpeg.stdout(std::process::Stdio::piped());
         self.child = Some(self.ffmpeg.spawn().expect("failed to start ffmpeg"));
+
+        if let Some(ref child) = self.child {
+            println!("FFmpeg started with PID {:?}", child.id());
+        }
     }
 
     pub async fn stop(&mut self) {

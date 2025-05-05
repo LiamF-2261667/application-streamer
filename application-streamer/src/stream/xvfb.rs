@@ -14,6 +14,7 @@ pub fn new(fps: u32, xvfb: &Xvfb) -> FFmpegStream {
         "-i", &format!(":{}", xvfb.display()),
         "-preset", "ultrafast",
         "-crf", "28",
+        // "-c:v", "h264_nvenc",
         // "-c", "copy",
         "-f", "mp4",
         "-movflags", "cmaf+separate_moof+delay_moov+skip_trailer+frag_every_frame",

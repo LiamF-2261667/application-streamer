@@ -83,6 +83,7 @@ export class Watch extends MoqElement {
 	public keydown(event: KeyboardEvent) {
 		let signal = document.getElementById("signal");
 		if (signal != null) signal.style.display = "block";
+		console.log("keydown", event.key);
 		this.#worker.then((worker) => worker.keydown(event.key));
 	}
 	public keyup(event: KeyboardEvent) {

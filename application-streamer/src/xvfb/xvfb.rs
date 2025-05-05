@@ -32,13 +32,15 @@ impl Xvfb {
         let color_depth = self.color_depth.clone();
 
         tokio::spawn(async move {
-            tokio::process::Command::new("Xvfb")
+            let child = tokio::process::Command::new("Xvfb")
                 .arg(format!(":{}", display))
                 .arg("-screen")
                 .arg("0")
                 .arg(format!("{}x{}x{}", resolution.width, resolution.height, color_depth))
                 .spawn()
                 .expect("failed to start Xvfb");
+
+            println!("Xvfb started with PID {:?}", child.id());
         });
 
         // tracing::info!("Xvfb started on display :{}", self.display);

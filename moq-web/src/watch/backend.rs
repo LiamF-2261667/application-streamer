@@ -1,4 +1,4 @@
-use moq_karp::{BroadcastConsumer};
+use moq_karp::{BroadcastConsumer, Input};
 use wasm_bindgen_futures::spawn_local;
 use super::{ControlsRecv, InputsRecv, Renderer, StatusSend, Video};
 use crate::{Connect, ConnectionStatus, Error, Result};
@@ -45,7 +45,16 @@ impl Backend {
 			tokio::select! {
 				input = self.inputs.input.next() => {
 					if let Some(broadcast) = &mut self.broadcast {
-						let _ = broadcast.input(input.ok_or("closed").expect("input").expect("input"));
+						let actual_input = input.ok_or("closed").expect("input").expect("input");
+						let _ = broadcast.input(actual_input.clone());
+
+						// DEBUG: log when space key is pressed
+						if let Input::KeyDown(keydown) = actual_input {
+							if keydown.name() == "space" || keydown.name() == " " {
+								tracing::info!("Space key press written to track");
+								println!("[println!] Space key press written to track!")
+							}
+						}
 					}
 				}
 				url = self.controls.url.next() => {

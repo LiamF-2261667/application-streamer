@@ -31,15 +31,29 @@ const TEST_VIDEO_FILE_LOCATION: &str = "C:/AAA_Liam/School/Bach3/Bachelorproef/a
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
 	// always remove the first argument
-	let args: Vec<String> = env::args().skip(1).collect();
-	let command = match args.len() {
+	let args = env::args().skip(1).collect::<Vec<String>>().join(" ");
+	let parts = args.split(" -- ").collect::<Vec<&str>>();
+	let cmd_arg: &str = match parts.len() {
+		0 => "",
+		_ => parts[0]
+	};
+	let ffmpeg_arg: &str = match parts.len() {
+		0 => "",
+		1 => "",
+		_ => parts[1]
+	};
+
+	let command = match cmd_arg.len() {
 		0 => "google-chrome --no-sandbox https://hamtv.com/latencytest.html",
-		_ => &args.join(" ")
+		_ => cmd_arg,
 	};
 
 	let mut xvfb = Xvfb::new(RESOLUTION, DISPLAY);
 	let mut application = XvfbUser::new(&xvfb, command);
-	let mut display_stream = stream::xvfb::new(FPS, &xvfb);
+	let mut display_stream = match ffmpeg_arg.len() {
+		0 => stream::xvfb::new(FPS, &xvfb),
+		_ => FFmpegStream::new(ffmpeg_arg.split(" ").collect()),
+	};
 
 	xvfb.start();
 	sleep(std::time::Duration::from_secs(1));
