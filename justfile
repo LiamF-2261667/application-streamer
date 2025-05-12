@@ -28,22 +28,14 @@ setup:
 	cargo binstall --no-confirm cargo-shear
 
 # Build the application streamer for linux
-#    cross build --bin application-streamer -- --target-dir out/application-streamer/ --target x86_64-unknown-linux-gnu
 application-streamer:
     cross build --bin application-streamer \
         --target-dir application-streamer/target \
         --target x86_64-unknown-linux-gnu
-#    docker build -t application-streamer:latest -f application-streamer/Dockerfile application-streamer
-#    docker run \
-#        --rm \
-#        -p 4443:4443 \
-#        application-streamer:latest
-#    docker build -t application-streamer:latest .
-#    docker run \
-#        --rm \
-#        --mount type=bind,src="$(pwd)",dst=/application-streamer \
-#        -p 4443:4443 \
-#        application-streamer:latest
+
+application-streamer-native:
+    cargo build --bin application-streamer \
+        --target-dir application-streamer/target
 
 # Run the relay, web server, and publish bbb.
 all:
