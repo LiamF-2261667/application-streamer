@@ -30,7 +30,7 @@
 		}
 	},
 
-	"include": ["moq-web/src"],
+	"include": ["stream-deliverer/src"],
 	"exclude": ["node_modules"],
 
 	"tsc-alias": {

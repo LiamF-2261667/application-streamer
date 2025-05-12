@@ -4,8 +4,8 @@ members = [
 	"moq-relay",
 	"moq-native",
 	"moq-karp",
-	"moq-web",
 	"moq-async",
+	"stream-deliverer",
 	"application-streamer",
 	"mp4-atom",
 ]

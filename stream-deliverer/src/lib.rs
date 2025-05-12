@@ -1,14 +1,14 @@
 mod connection;
 mod error;
-mod meet;
-mod publish;
+
 mod watch;
+
+mod streams;
 
 pub use connection::*;
 pub use error::*;
-pub use meet::*;
-pub use publish::*;
 pub use watch::*;
+pub use streams::*;
 
 use wasm_bindgen::prelude::*;
 
@@ -23,4 +23,7 @@ pub fn start() {
 		..Default::default()
 	};
 	wasm_tracing::set_as_global_default_with_config(config).expect("failed to install logger");
+
+	let manager = StreamsManager::new();
+	manager.start_stream("test");
 }
