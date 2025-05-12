@@ -6,15 +6,15 @@ use crate::*;
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Edts {
-    pub elst: Option<Elst>,
+	pub elst: Option<Elst>,
 }
 
 impl Atom for Edts {
-    const KIND: FourCC = FourCC::new(b"edts");
+	const KIND: FourCC = FourCC::new(b"edts");
 
-    nested! {
-        required: [],
-        optional: [ Elst ],
-        multiple: [],
-    }
+	nested! {
+		required: [],
+		optional: [ Elst ],
+		multiple: [],
+	}
 }

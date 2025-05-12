@@ -1,5 +1,8 @@
 use super::{Error, Result};
-use crate::{debug, Audio, BroadcastProducer, Dimensions, Frame, Timestamp, Track, TrackProducer, Video, VideoCodec, AAC, AV1, H264, H265, VP9};
+use crate::{
+	debug, Audio, BroadcastProducer, Dimensions, Frame, Timestamp, Track, TrackProducer, Video, VideoCodec, AAC, AV1,
+	H264, H265, VP9,
+};
 use bytes::{Bytes, BytesMut};
 use mp4_atom::{Any, AsyncReadFrom, Atom, DecodeMaybe, Esds, Mdat, Moof, Moov, Tfdt, Trak, Trun};
 use std::{collections::HashMap, time::Duration};
@@ -459,8 +462,6 @@ impl Import {
 				}
 			}
 		}
-
-
 
 		if let (Some(min), Some(max)) = (min_timestamp, max_timestamp) {
 			let diff = max - min;

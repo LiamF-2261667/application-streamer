@@ -1,170 +1,169 @@
- use std::io::Read;
+
+use std::io::Read;
 
 use crate::*;
 
 /// A helper to encode/decode a known atom type.
 pub trait Atom: Sized {
-    const KIND: FourCC;
+	const KIND: FourCC;
 
-    fn decode_body<B: Buf>(buf: &mut B) -> Result<Self>;
-    fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()>;
+	fn decode_body<B: Buf>(buf: &mut B) -> Result<Self>;
+	fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()>;
 }
 
 impl<T: Atom> Encode for T {
-    fn encode<B: BufMut>(&self, buf: &mut B) -> Result<()> {
-        let start = buf.len();
+	fn encode<B: BufMut>(&self, buf: &mut B) -> Result<()> {
+		let start = buf.len();
 
-        // Encode a 0 for the size, we'll come back to it later
-        0u32.encode(buf)?;
-        Self::KIND.encode(buf)?;
-        self.encode_body(buf)?;
+		// Encode a 0 for the size, we'll come back to it later
+		0u32.encode(buf)?;
+		Self::KIND.encode(buf)?;
+		self.encode_body(buf)?;
 
-        // Update the size field
-        // TODO support sizes larger than u32 (4GB)
-        let size: u32 = (buf.len() - start)
-            .try_into()
-            .map_err(|_| Error::TooLarge(T::KIND))?;
+		// Update the size field
+		// TODO support sizes larger than u32 (4GB)
+		let size: u32 = (buf.len() - start).try_into().map_err(|_| Error::TooLarge(T::KIND))?;
 
-        buf.set_slice(start, &size.to_be_bytes());
+		buf.set_slice(start, &size.to_be_bytes());
 
-        Ok(())
-    }
+		Ok(())
+	}
 }
 
 impl<T: Atom> Decode for T {
-    fn decode<B: Buf>(buf: &mut B) -> Result<Self> {
-        Self::decode_maybe(buf)?.ok_or(Error::OutOfBounds)
-    }
+	fn decode<B: Buf>(buf: &mut B) -> Result<Self> {
+		Self::decode_maybe(buf)?.ok_or(Error::OutOfBounds)
+	}
 }
 
 impl<T: Atom> DecodeMaybe for T {
-    fn decode_maybe<B: Buf>(buf: &mut B) -> Result<Option<Self>> {
-        let header = match Header::decode_maybe(buf)? {
-            Some(header) => header,
-            None => return Ok(None),
-        };
+	fn decode_maybe<B: Buf>(buf: &mut B) -> Result<Option<Self>> {
+		let header = match Header::decode_maybe(buf)? {
+			Some(header) => header,
+			None => return Ok(None),
+		};
 
-        let size = header.size.unwrap_or(buf.remaining());
-        if size > buf.remaining() {
-            return Ok(None);
-        }
+		let size = header.size.unwrap_or(buf.remaining());
+		if size > buf.remaining() {
+			return Ok(None);
+		}
 
-        let body = &mut buf.slice(size);
+		let body = &mut buf.slice(size);
 
-        let atom = match Self::decode_body(body) {
-            Ok(atom) => atom,
-            Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
-            Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
-            Err(err) => return Err(err),
-        };
+		let atom = match Self::decode_body(body) {
+			Ok(atom) => atom,
+			Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
+			Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
+			Err(err) => return Err(err),
+		};
 
-        if body.has_remaining() {
-            return Err(Error::UnderDecode(T::KIND));
-        }
+		if body.has_remaining() {
+			return Err(Error::UnderDecode(T::KIND));
+		}
 
-        buf.advance(size);
+		buf.advance(size);
 
-        Ok(Some(atom))
-    }
+		Ok(Some(atom))
+	}
 }
 
 impl<T: Atom> ReadFrom for T {
-    fn read_from<R: Read>(r: &mut R) -> Result<Self> {
-        <Option<T> as ReadFrom>::read_from(r)?.ok_or(Error::MissingBox(T::KIND))
-    }
+	fn read_from<R: Read>(r: &mut R) -> Result<Self> {
+		<Option<T> as ReadFrom>::read_from(r)?.ok_or(Error::MissingBox(T::KIND))
+	}
 }
 
 impl<T: Atom> ReadFrom for Option<T> {
-    fn read_from<R: Read>(r: &mut R) -> Result<Self> {
-        let header = match <Option<Header> as ReadFrom>::read_from(r)? {
-            Some(header) => header,
-            None => return Ok(None),
-        };
+	fn read_from<R: Read>(r: &mut R) -> Result<Self> {
+		let header = match <Option<Header> as ReadFrom>::read_from(r)? {
+			Some(header) => header,
+			None => return Ok(None),
+		};
 
-        let body = &mut header.read_body(r)?;
+		let body = &mut header.read_body(r)?;
 
-        let atom = match T::decode_body(body) {
-            Ok(atom) => atom,
-            Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
-            Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
-            Err(err) => return Err(err),
-        };
+		let atom = match T::decode_body(body) {
+			Ok(atom) => atom,
+			Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
+			Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
+			Err(err) => return Err(err),
+		};
 
-        if body.has_remaining() {
-            return Err(Error::UnderDecode(T::KIND));
-        }
+		if body.has_remaining() {
+			return Err(Error::UnderDecode(T::KIND));
+		}
 
-        Ok(Some(atom))
-    }
+		Ok(Some(atom))
+	}
 }
 
 impl<T: Atom> ReadUntil for T {
-    fn read_until<R: Read>(r: &mut R) -> Result<Self> {
-        <Option<T> as ReadUntil>::read_until(r)?.ok_or(Error::MissingBox(T::KIND))
-    }
+	fn read_until<R: Read>(r: &mut R) -> Result<Self> {
+		<Option<T> as ReadUntil>::read_until(r)?.ok_or(Error::MissingBox(T::KIND))
+	}
 }
 
 impl<T: Atom> ReadUntil for Option<T> {
-    fn read_until<R: Read>(r: &mut R) -> Result<Self> {
-        while let Some(header) = <Option<Header> as ReadFrom>::read_from(r)? {
-            if header.kind == T::KIND {
-                let body = &mut header.read_body(r)?;
-                return Ok(Some(T::decode_atom(&header, body)?));
-            }
-        }
+	fn read_until<R: Read>(r: &mut R) -> Result<Self> {
+		while let Some(header) = <Option<Header> as ReadFrom>::read_from(r)? {
+			if header.kind == T::KIND {
+				let body = &mut header.read_body(r)?;
+				return Ok(Some(T::decode_atom(&header, body)?));
+			}
+		}
 
-        Ok(None)
-    }
+		Ok(None)
+	}
 }
 
 impl<T: Atom> DecodeAtom for T {
-    fn decode_atom<B: Buf>(header: &Header, buf: &mut B) -> Result<T> {
-        if header.kind != T::KIND {
-            return Err(Error::UnexpectedBox(header.kind));
-        }
+	fn decode_atom<B: Buf>(header: &Header, buf: &mut B) -> Result<T> {
+		if header.kind != T::KIND {
+			return Err(Error::UnexpectedBox(header.kind));
+		}
 
-        let size = header.size.unwrap_or(buf.remaining());
-        if size > buf.remaining() {
-            return Err(Error::OutOfBounds);
-        }
+		let size = header.size.unwrap_or(buf.remaining());
+		if size > buf.remaining() {
+			return Err(Error::OutOfBounds);
+		}
 
-        let body = &mut buf.slice(size);
+		let body = &mut buf.slice(size);
 
-        let atom = match T::decode_body(body) {
-            Ok(atom) => atom,
-            Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
-            Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
-            Err(err) => return Err(err),
-        };
+		let atom = match T::decode_body(body) {
+			Ok(atom) => atom,
+			Err(Error::OutOfBounds) => return Err(Error::OverDecode(T::KIND)),
+			Err(Error::ShortRead) => return Err(Error::UnderDecode(T::KIND)),
+			Err(err) => return Err(err),
+		};
 
-        if body.has_remaining() {
-            // return Err(Error::UnderDecode(T::KIND));
-            tracing::warn!("under decode: {:?}", T::KIND);
-        }
+		if body.has_remaining() {
+			// return Err(Error::UnderDecode(T::KIND));
+			tracing::warn!("under decode: {:?}", T::KIND);
+		}
 
-        buf.advance(size);
+		buf.advance(size);
 
-        Ok(atom)
-    }
+		Ok(atom)
+	}
 }
 
 impl<T: Atom> ReadAtom for T {
-    fn read_atom<R: Read>(header: &Header, r: &mut R) -> Result<Self> {
-        if header.kind != T::KIND {
-            return Err(Error::UnexpectedBox(header.kind));
-        }
+	fn read_atom<R: Read>(header: &Header, r: &mut R) -> Result<Self> {
+		if header.kind != T::KIND {
+			return Err(Error::UnexpectedBox(header.kind));
+		}
 
-        let body = &mut header.read_body(r)?;
-        Self::decode_atom(header, body)
-    }
+		let body = &mut header.read_body(r)?;
+		Self::decode_atom(header, body)
+	}
 }
 
 // A helper for generating nested atoms.
 /* example:
 nested! {
-    required: [ Mvhd ],
-    optional: [ Meta, Mvex, Udta ],
-    multiple: [ Trak ],
+	required: [ Mvhd ],
+	optional: [ Meta, Mvex, Udta ],
+	multiple: [ Trak ],
 };
 */
 

@@ -1,9 +1,12 @@
+use application_streamer::{FFmpegStream, InputWriter, MoQInputStreamer, Xvfb, XvfbUser, stream};
+use moq_karp::{Input, InputHandlerRecv, debug};
 use std::env;
 use std::thread::sleep;
-use application_streamer::{stream, FFmpegStream, InputWriter, MoQInputStreamer, Xvfb, XvfbUser};
-use moq_karp::{debug, Input, InputHandlerRecv};
 
-const RESOLUTION: moq_karp::Dimensions = moq_karp::Dimensions { width: 1920, height: 1080 };
+const RESOLUTION: moq_karp::Dimensions = moq_karp::Dimensions {
+	width: 1920,
+	height: 1080,
+};
 const PORT: u16 = 4443;
 const FPS: u32 = 30;
 const DISPLAY: u32 = 99;
@@ -35,12 +38,12 @@ async fn main() -> anyhow::Result<()> {
 	let parts = args.split(" -- ").collect::<Vec<&str>>();
 	let cmd_arg: &str = match parts.len() {
 		0 => "",
-		_ => parts[0]
+		_ => parts[0],
 	};
 	let ffmpeg_arg: &str = match parts.len() {
 		0 => "",
 		1 => "",
-		_ => parts[1]
+		_ => parts[1],
 	};
 
 	let command = match cmd_arg.len() {
@@ -97,7 +100,7 @@ async fn handle_input(mut input_buffer: InputHandlerRecv, application: XvfbUser)
 					}
 				}
 			}
-			None => { }
+			None => {}
 		}
 	}
 }

@@ -3,87 +3,87 @@ use crate::*;
 // Combine the version and flags into a single struct
 // We use a special trait to ensure it's always a u32
 pub(crate) trait Ext: Default {
-    fn encode(&self) -> Result<u32>;
-    fn decode(v: u32) -> Result<Self>;
+	fn encode(&self) -> Result<u32>;
+	fn decode(v: u32) -> Result<Self>;
 }
 
 // Rather than encoding/decoding the header in every atom, use this trait.
 pub(crate) trait AtomExt: Sized {
-    const KIND_EXT: FourCC;
+	const KIND_EXT: FourCC;
 
-    // One day default associated types will be a thing, then this can be ()
-    type Ext: Ext;
+	// One day default associated types will be a thing, then this can be ()
+	type Ext: Ext;
 
-    fn encode_body_ext<B: BufMut>(&self, buf: &mut B) -> Result<Self::Ext>;
-    fn decode_body_ext<B: Buf>(buf: &mut B, ext: Self::Ext) -> Result<Self>;
+	fn encode_body_ext<B: BufMut>(&self, buf: &mut B) -> Result<Self::Ext>;
+	fn decode_body_ext<B: Buf>(buf: &mut B, ext: Self::Ext) -> Result<Self>;
 }
 
 impl<T: AtomExt> Atom for T {
-    const KIND: FourCC = Self::KIND_EXT;
+	const KIND: FourCC = Self::KIND_EXT;
 
-    fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
-        let ext = Ext::decode(u32::decode(buf)?)?;
-        AtomExt::decode_body_ext(buf, ext)
-    }
+	fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
+		let ext = Ext::decode(u32::decode(buf)?)?;
+		AtomExt::decode_body_ext(buf, ext)
+	}
 
-    fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
-        // Here's the magic, we reserve space for the version/flags first
-        let start = buf.len();
-        0u32.encode(buf)?;
+	fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
+		// Here's the magic, we reserve space for the version/flags first
+		let start = buf.len();
+		0u32.encode(buf)?;
 
-        // That way we can return them as part of the trait, avoiding boilerplate
-        let ext = self.encode_body_ext(buf)?;
+		// That way we can return them as part of the trait, avoiding boilerplate
+		let ext = self.encode_body_ext(buf)?;
 
-        // Go back and update the version/flags
-        let header = ext.encode()?;
-        buf.set_slice(start, &header.to_be_bytes());
+		// Go back and update the version/flags
+		let header = ext.encode()?;
+		buf.set_slice(start, &header.to_be_bytes());
 
-        Ok(())
-    }
+		Ok(())
+	}
 }
 
 // Some atoms don't have any version/flags, so we provide a default implementation
 impl Ext for () {
-    fn encode(&self) -> Result<u32> {
-        Ok(0)
-    }
+	fn encode(&self) -> Result<u32> {
+		Ok(0)
+	}
 
-    fn decode(_: u32) -> Result<()> {
-        Ok(())
-    }
+	fn decode(_: u32) -> Result<()> {
+		Ok(())
+	}
 }
 
 // Here's a macro to make life easier:
 /* input:
 ext! {
-    name: Tfdt,
-    versions: [0, 1],
-    flags: {
-        base_data_offset = 0,
-        sample_description_index = 1,
-        default_sample_duration = 3,
-        default_sample_size = 4,
-        default_sample_flags = 5,
-        duration_is_empty = 16,
-        default_base_is_moof = 17,
-    },
+	name: Tfdt,
+	versions: [0, 1],
+	flags: {
+		base_data_offset = 0,
+		sample_description_index = 1,
+		default_sample_duration = 3,
+		default_sample_size = 4,
+		default_sample_flags = 5,
+		duration_is_empty = 16,
+		default_base_is_moof = 17,
+	},
 }
 
 output:
 enum TfdtVersion {
-    V0 = 0,
-    V1 = 1,
+	V0 = 0,
+	V1 = 1,
 }
 
 struct TfdtExt {
-    pub version: TfdtVersion,
-    pub base_data_offset: bool,
-    pub sample_description_index: bool,
-    pub default_sample_duration: bool,
-    pub default_sample_size: bool,
-    pub default_sample_flags: bool,
-    pub duration_is_empty: bool,
-    pub default_base_is_moof: bool,
+	pub version: TfdtVersion,
+	pub base_data_offset: bool,
+	pub sample_description_index: bool,
+	pub default_sample_duration: bool,
+	pub default_sample_size: bool,
+	pub default_sample_flags: bool,
+	pub duration_is_empty: bool,
+	pub default_base_is_moof: bool,
 }
 */
 

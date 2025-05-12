@@ -4,10 +4,10 @@ use baton::Baton;
 use url::Url;
 use wasm_bindgen::prelude::*;
 
-use web_sys::OffscreenCanvas;
-use moq_karp::{Input, Key};
 use super::{Backend, StatusRecv, WatchStatus};
-use crate::{watch::Status, Error, Result};
+use crate::{Error, Result, watch::Status};
+use moq_karp::{Input, Key};
+use web_sys::OffscreenCanvas;
 
 // Sent from the frontend to the backend.
 #[derive(Debug, Baton)]
@@ -25,7 +25,6 @@ pub(super) struct Controls {
 pub(super) struct Inputs {
 	pub input: Option<Input>,
 }
-
 
 impl Default for Controls {
 	fn default() -> Self {

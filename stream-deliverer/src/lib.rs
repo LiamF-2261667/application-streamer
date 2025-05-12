@@ -7,8 +7,8 @@ mod streams;
 
 pub use connection::*;
 pub use error::*;
-pub use watch::*;
 pub use streams::*;
+pub use watch::*;
 
 use wasm_bindgen::prelude::*;
 
