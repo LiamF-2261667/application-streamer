@@ -28,29 +28,29 @@ impl DockerFile {
 		}
 	}
 
-	pub fn get_location(&self) -> Location {
-		self.location.clone()
-	}
-	pub fn get_tag(&self) -> Tag {
-		self.tag.clone()
-	}
-	pub fn get_context(&self) -> Location {
-		self.context.clone()
-	}
+	// pub fn get_location(&self) -> Location {
+	// 	self.location.clone()
+	// }
+	// pub fn get_tag(&self) -> Tag {
+	// 	self.tag.clone()
+	// }
+	// pub fn get_context(&self) -> Location {
+	// 	self.context.clone()
+	// }
 
-	pub async fn build(&self) -> Image {
-		const CMD: &str = format!(
-			"docker build -t {} -f {} {}",
-			self.tag.name, self.location, self.context
-		)
-		.as_str();
-
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to build docker image");
-
-		Image::new(self.tag.clone())
-	}
+	// pub async fn build(&self) -> Image {
+	// 	const CMD: &str = format!(
+	// 		"docker build -t {} -f {} {}",
+	// 		self.tag.name, self.location, self.context
+	// 	)
+	// 	.as_str();
+	//
+	// 	tokio::process::Command::new(CMD)
+	// 		.await
+	// 		.expect("Failed to build docker image");
+	//
+	// 	Image::new(self.tag.clone())
+	// }
 }
 
 #[derive(Clone)]
@@ -121,45 +121,45 @@ impl Container {
 	pub fn remove_port(&mut self, port: u16) {
 		self.ports.retain(|&p| p != port);
 	}
-
-	pub async fn start(&self) -> Result<(), Err> {
-		let mut status = self.status.lock();
-		if *status == Status::Running {
-			return Err("Container is already running".into());
-		}
-		*status = Status::Running;
-
-		const CMD: &str = format!(
-			"docker run --rm --name {} -p {} {}",
-			self.name,
-			self.ports
-				.iter()
-				.map(|port| format!("{}:{}", port, port))
-				.collect::<Vec<String>>()
-				.join(" "),
-			self.image.get_tag()
-		)
-		.as_str();
-
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to start docker container");
-
-		tracing::info!("Started container: {}", self.name);
-	}
-
-	pub async fn stop(&self) -> Result<(), Err> {
-		let mut status = self.status.lock();
-		if *status != Status::Running {
-			return Err("Container is not running".into());
-		}
-		*status = Status::Stopped;
-
-		const CMD: &str = format!("docker stop {}", self.name).as_str();
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to stop docker container");
-
-		tracing::info!("Stopped container: {}", self.name);
-	}
+	//
+	// pub async fn start(&self) -> Result<(), Err> {
+	// 	let mut status = self.status.lock();
+	// 	if *status == Status::Running {
+	// 		return Err("Container is already running".into());
+	// 	}
+	// 	*status = Status::Running;
+	//
+	// 	const CMD: &str = format!(
+	// 		"docker run --rm --name {} -p {} {}",
+	// 		self.name,
+	// 		self.ports
+	// 			.iter()
+	// 			.map(|port| format!("{}:{}", port, port))
+	// 			.collect::<Vec<String>>()
+	// 			.join(" "),
+	// 		self.image.get_tag()
+	// 	)
+	// 	.as_str();
+	//
+	// 	// tokio::process::Command::new(CMD)
+	// 	// 	.await
+	// 	// 	.expect("Failed to start docker container");
+	//
+	// 	tracing::info!("Started container: {}", self.name);
+	// }
+	//
+	// pub async fn stop(&self) -> Result<(), Err> {
+	// 	let mut status = self.status.lock();
+	// 	if *status != Status::Running {
+	// 		return Err("Container is not running".into());
+	// 	}
+	// 	*status = Status::Stopped;
+	//
+	// 	const CMD: &str = format!("docker stop {}", self.name).as_str();
+	// 	// tokio::process::Command::new(CMD)
+	// 	// 	.await
+	// 	// 	.expect("Failed to stop docker container");
+	//
+	// 	tracing::info!("Stopped container: {}", self.name);
+	// }
 }

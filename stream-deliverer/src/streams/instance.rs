@@ -1,7 +1,8 @@
-#[derive(clone, Debug)]
+use crate::Container;
+
+
 pub struct StreamOptions {}
 
-#[derive(clone, Debug)]
 pub struct StreamInstance {
 	port: u32,
 	options: StreamOptions,

@@ -2,6 +2,7 @@ use moq_async::Lock;
 use std::collections::HashMap;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
+use crate::streams::instance::StreamInstance;
 
 #[wasm_bindgen]
 pub struct StreamsManager {

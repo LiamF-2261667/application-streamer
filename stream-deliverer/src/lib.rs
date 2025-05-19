@@ -25,5 +25,5 @@ pub fn start() {
 	wasm_tracing::set_as_global_default_with_config(config).expect("failed to install logger");
 
 	let manager = StreamsManager::new();
-	manager.start_stream("test");
+	// manager.start_stream("test");
 }
