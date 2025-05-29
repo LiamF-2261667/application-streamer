@@ -14,6 +14,12 @@ class StreamManager {
         let stream = new Stream(port);
         this.streams.push(stream);
 
+        stream.start().catch(error => {
+            console.error(`Failed to start stream on port ${port}:`, error);
+            this.streams = this.streams.filter(s => s.port !== port);
+            throw new Error(`Failed to start stream on port ${port}: ${error.message}`);
+        });
+
         console.log(`New stream created on port ${port}`);
         return stream;
     }
