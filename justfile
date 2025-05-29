@@ -112,6 +112,10 @@ pub-server name:
 web:
 	npm i && npm run dev
 
+# Run the stream deliverer
+stream-deliverer:
+	npm i && npm run dev
+
 # Publish the clock broadcast
 clock-pub:
 	cargo run --bin moq-clock -- "http://localhost:4443" publish
