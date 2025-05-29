@@ -28,26 +28,25 @@ impl DockerFile {
 		}
 	}
 
-	pub fn get_location(&self) -> Location {
+	pub fn get_location(&self) -> String {
 		self.location.clone()
 	}
 	pub fn get_tag(&self) -> Tag {
 		self.tag.clone()
 	}
-	pub fn get_context(&self) -> Location {
+	pub fn get_context(&self) -> String {
 		self.context.clone()
 	}
 
 	pub async fn build(&self) -> Image {
-		const CMD: &str = format!(
+		let cmd: String = format!(
 			"docker build -t {} -f {} {}",
 			self.tag.name, self.location, self.context
-		)
-		.as_str();
+		);
 
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to build docker image");
+		std::process::Command::new(cmd)
+			.spawn()
+			.expect("Failed to start docker build command");
 
 		Image::new(self.tag.clone())
 	}
@@ -122,14 +121,14 @@ impl Container {
 		self.ports.retain(|&p| p != port);
 	}
 
-	pub async fn start(&self) -> Result<(), Err> {
+	pub async fn start(&self) {
 		let mut status = self.status.lock();
 		if *status == Status::Running {
-			return Err("Container is already running".into());
+			return;
 		}
 		*status = Status::Running;
 
-		const CMD: &str = format!(
+		let cmd: String = format!(
 			"docker run --rm --name {} -p {} {}",
 			self.name,
 			self.ports
@@ -138,27 +137,26 @@ impl Container {
 				.collect::<Vec<String>>()
 				.join(" "),
 			self.image.get_tag()
-		)
-		.as_str();
+		);
 
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to start docker container");
+		std::process::Command::new(cmd)
+			.spawn()
+			.expect("Failed to start docker run command");
 
 		tracing::info!("Started container: {}", self.name);
 	}
 
-	pub async fn stop(&self) -> Result<(), Err> {
+	pub async fn stop(&self) {
 		let mut status = self.status.lock();
 		if *status != Status::Running {
-			return Err("Container is not running".into());
+			return;
 		}
 		*status = Status::Stopped;
 
-		const CMD: &str = format!("docker stop {}", self.name).as_str();
-		tokio::process::Command::new(CMD)
-			.await
-			.expect("Failed to stop docker container");
+		let cmd: String = format!("docker stop {}", self.name);
+		std::process::Command::new(cmd)
+			.spawn()
+			.expect("Failed to start docker stop command");
 
 		tracing::info!("Stopped container: {}", self.name);
 	}

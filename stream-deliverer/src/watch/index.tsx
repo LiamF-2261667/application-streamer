@@ -7,6 +7,7 @@ import { type ConnectionStatus, convertConnectionStatus } from "../connection";
 import type { Bridge } from "./bridge";
 
 import { MoqElement, attribute, element, jsx } from "../util";
+import {apiRequest} from "../service";
 
 export type RendererStatus = "idle" | "paused" | "buffering" | "live";
 
@@ -102,7 +103,14 @@ export class Watch extends MoqElement {
 	}
 
 	private urlChange(value: string) {
-		this.#worker.then((worker) => worker.url(value));
+		// Get the PORT to use from the api endpoint.
+		apiRequest("getPersonalStream").then(data => {
+			let port: string = data.port;
+			value = value.replace("${PORT}", port);
+
+			console.log("Setting URL to:", value);
+			this.#worker.then((worker) => worker.url(value));
+		})
 	}
 
 	private pausedChange(value: boolean) {
