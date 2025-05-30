@@ -45,7 +45,7 @@ export class DockerFile {
         const cmd = `docker build -t ${this.tag.name} -f ${this.location} ${this.context}`;
 
         return new Promise((resolve, reject) => {
-            const process = spawn(cmd);
+            const process = spawn(cmd, { shell: true, stdio: 'inherit' });
 
             process.on('error', (error) => {
                 reject(new Error(`Failed to start docker build command: ${error.message}`));
@@ -145,11 +145,22 @@ class AsyncLockGuard<T> {
     }
 }
 
+export class PortMapping {
+    public container: number;
+    public host: number;
+
+    constructor(container: number, host: number) {
+        this.container = container;
+        this.host = host;
+    }
+}
+
 export class Container {
     private name: string;
     private image: Image;
-    private ports: number[] = [];
+    private ports: PortMapping[] = [];
     private status: AsyncLock<Status>;
+    private _stdout?: any;
 
     constructor(name: string, image: Image) {
         this.name = name;
@@ -157,7 +168,7 @@ export class Container {
         this.status = new AsyncLock(Status.Stopped);
     }
 
-    getPorts(): number[] {
+    getPorts(): PortMapping[] {
         return [...this.ports];
     }
 
@@ -169,6 +180,10 @@ export class Container {
         return this.image.clone();
     }
 
+    get stdout(): any {
+        return this._stdout;
+    }
+
     async getStatus(): Promise<Status> {
         const guard = await this.status.lock();
         const status = guard.value;
@@ -176,11 +191,11 @@ export class Container {
         return status;
     }
 
-    addPort(port: number): void {
+    addPort(port: PortMapping): void {
         this.ports.push(port);
     }
 
-    removePort(port: number): void {
+    removePort(port: PortMapping): void {
         this.ports = this.ports.filter(p => p !== port);
     }
 
@@ -195,13 +210,15 @@ export class Container {
         guard.value = Status.Running;
 
         const portMappings = this.ports
-            .map(port => `-p ${port}:${port}`)
+            .map(port => `-p ${port.host}:${port.container} -p ${port.host}:${port.container}/udp`)
             .join(' ');
 
         const cmd = `docker run --rm --name ${this.name} ${portMappings} ${this.image.getTag()}`;
 
         return new Promise((resolve, reject) => {
-            const process = spawn(cmd);
+            const process = spawn(cmd, { shell: true });
+
+            this._stdout = process.stdout;
 
             process.on('error', (error) => {
                 guard.release();
@@ -229,7 +246,7 @@ export class Container {
         const cmd = `docker stop ${this.name}`;
 
         return new Promise((resolve, reject) => {
-            const process = spawn(cmd);
+            const process = spawn(cmd, { shell: true, stdio: 'inherit' });
 
             process.on('error', (error) => {
                 guard.release();

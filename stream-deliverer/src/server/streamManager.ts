@@ -3,7 +3,7 @@ import Stream from "./stream.js";
 class StreamManager {
     private streams: Stream[] = [];
 
-    public newStream(): Stream {
+    public async newStream(): Promise<Stream> {
         let free_ports = this.availablePorts();
         if (free_ports.length === 0) {
             throw new Error("No free ports available");
@@ -14,7 +14,7 @@ class StreamManager {
         let stream = new Stream(port);
         this.streams.push(stream);
 
-        stream.start().catch(error => {
+        await stream.start().catch(error => {
             console.error(`Failed to start stream on port ${port}:`, error);
             this.streams = this.streams.filter(s => s.port !== port);
             throw new Error(`Failed to start stream on port ${port}: ${error.message}`);
@@ -32,6 +32,10 @@ class StreamManager {
 
         const usedPorts = this.streams.map(stream => stream.port);
         return res.filter(port => !usedPorts.includes(port));
+    }
+
+    public getStream(port: number): Stream | undefined {
+        return this.streams.find(stream => stream.port === port);
     }
 }
 

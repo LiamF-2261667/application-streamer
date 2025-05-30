@@ -110,6 +110,15 @@ export class Watch extends MoqElement {
 
 			console.log("Setting URL to:", value);
 			this.#worker.then((worker) => worker.url(value));
+
+			// Send a heartbeat every 45 seconds to keep the connection alive.
+			setInterval(() => {
+				apiRequest("heartbeat", "POST", { port }).catch((error) => {
+					console.error("Failed to send heartbeat:", error);
+				}).then(() => {
+					console.log("Heartbeat sent successfully.");
+				});
+			}, 45000);
 		})
 	}
 

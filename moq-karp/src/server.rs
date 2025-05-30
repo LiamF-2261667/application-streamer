@@ -78,6 +78,10 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 	fn accept(&mut self, mut server: Server) -> anyhow::Result<()> {
 		tracing::info!(addr = %self.bind, "listening");
 
+		// IMPORTANT! The line is used as a single for hosts that the application streamer is ready inside the container.
+		// Keep it as is.
+		println!("Ready to accept connections");
+
 		let mut conn_id = 0;
 		let mut broadcast = self.broadcast.clone();
 

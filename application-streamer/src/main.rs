@@ -10,25 +10,6 @@ const RESOLUTION: moq_karp::Dimensions = moq_karp::Dimensions {
 const PORT: u16 = 4443;
 const FPS: u32 = 30;
 const DISPLAY: u32 = 99;
-// const TEST_VIDEO_FILE_LOCATION: &str = "C:/Users/liamf/Documents/Bach3/Bachelorproef/application-streamer/dev/bbb.fmp4";
-const TEST_VIDEO_FILE_LOCATION: &str = "C:/AAA_Liam/School/Bach3/Bachelorproef/application-streamer/dev/bbb.fmp4";
-
-// /// Stream video file with moq-karp
-// #[tokio::main]
-// async fn main() -> anyhow::Result<()> {
-// 	let mut video_stream = stream::video_file::new(TEST_VIDEO_FILE_LOCATION);
-// 	video_stream.start();
-//
-// 	let mut input_streamer = MoQInputStreamer::new(PORT, video_stream.stdout());
-// 	let input_buffer = input_streamer.input_buffer();
-// 	tokio::spawn(handle_input(input_buffer));
-//
-// 	input_streamer.stream().await?; // blocking method
-//
-// 	video_stream.stop().await;
-//
-// 	Ok(())
-// }
 
 ///Stream xvfb with moq-karp
 #[tokio::main]

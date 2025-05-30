@@ -15,6 +15,7 @@ This is a fork of [moq-rs](https://github.com/kixelated/moq-rs), more informatio
 - [Rustup](https://www.rust-lang.org/tools/install)
 - [Just](https://github.com/casey/just?tab=readme-ov-file#installation)
 - [Node + NPM](https://nodejs.org/)
+- [Docker](https://www.docker.com/get-started)
 
 ## Setup
 We use `just` to simplify the development process.
@@ -27,6 +28,10 @@ just setup
 
 ## Development
 
+> [!IMPORTANT]
+> Make sure the application streamer is built before running the stream deliverer.
+> (The generated binaries are used in the stream deliverer.)
+
 ```sh
 # Build the application streamer:
 just application-server # for windows
@@ -34,14 +39,17 @@ just application-server-native # for linux
 ```
 
 ```sh
-# Run the pre-build application streamer:
-docker build -t application-streamer -f application-streamer/Dockerfile .
-docker run -it --rm --gpus all -p 4443:4443 application-streamer
-```
-
-```sh
 # Run the stream deliverer:
-just stream-deliverer
+just run
 ```
 
 Then, visit [https://localhost:8080](localhost:8080) to watch the application stream.
+
+## Settings
+
+To change the application that will be streamed, edit the [Dockerfile in application-streamer](application-streamer/Dockerfile).
+Change the CMD line to run the desired application, for example:
+```dockerfile
+CMD ["usr/bin/application-streamer/application-streamer google-chrome --no-sandbox https://www.google.com"]
+```
+The given application will be run inside the Docker container, and its output will be streamed to the stream deliverer.

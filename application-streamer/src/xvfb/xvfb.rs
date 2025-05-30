@@ -37,6 +37,7 @@ impl Xvfb {
 				.arg("-screen")
 				.arg("0")
 				.arg(format!("{}x{}x{}", resolution.width, resolution.height, color_depth))
+				.stdout(std::process::Stdio::null())
 				.spawn()
 				.expect("failed to start Xvfb");
 

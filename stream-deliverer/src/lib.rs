@@ -3,11 +3,8 @@ mod error;
 
 mod watch;
 
-mod streams;
-
 pub use connection::*;
 pub use error::*;
-pub use streams::*;
 pub use watch::*;
 
 use wasm_bindgen::prelude::*;
