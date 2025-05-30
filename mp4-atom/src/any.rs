@@ -121,85 +121,85 @@ macro_rules! any {
 }
 
 any! {
-    Ftyp,
-    Styp,
-    Moov,
-        Mvhd,
-        Udta,
-            Meta,
-                Ilst,
-                    Covr,
-                    Desc,
-                    Name,
-                    Year,
-            Skip,
-        Trak,
-            Tkhd,
-            Mdia,
-                Mdhd,
-                Hdlr,
-                Minf,
-                    Stbl,
-                        Stsd,
-                            Avc1,
-                                Avcc,
-                            Hev1, Hvc1,
-                                Hvcc,
-                            Mp4a,
-                                Esds,
-                            Tx3g,
-                            Vp08, Vp09,
-                                VpcC,
-                            Av01,
-                                Av1c,
-                        Stts,
-                        Stsc,
-                        Stsz,
-                        Stss,
-                        Stco,
-                        Co64,
-                        Ctts,
-                    Dinf,
-                        Dref,
-                    Smhd,
-                    Vmhd,
-            Edts,
-                Elst,
-        Mvex,
-            Mehd,
-            Trex,
-    Emsg,
-    Moof,
-        Mfhd,
-        Traf,
-            Tfhd,
-            Tfdt,
-            Trun,
-    Mdat,
-    Free,
+	Ftyp,
+	Styp,
+	Moov,
+		Mvhd,
+		Udta,
+			Meta,
+				Ilst,
+					Covr,
+					Desc,
+					Name,
+					Year,
+			Skip,
+		Trak,
+			Tkhd,
+			Mdia,
+				Mdhd,
+				Hdlr,
+				Minf,
+					Stbl,
+						Stsd,
+							Avc1,
+								Avcc,
+							Hev1, Hvc1,
+								Hvcc,
+							Mp4a,
+								Esds,
+							Tx3g,
+							Vp08, Vp09,
+								VpcC,
+							Av01,
+								Av1c,
+						Stts,
+						Stsc,
+						Stsz,
+						Stss,
+						Stco,
+						Co64,
+						Ctts,
+					Dinf,
+						Dref,
+					Smhd,
+					Vmhd,
+			Edts,
+				Elst,
+		Mvex,
+			Mehd,
+			Trex,
+	Emsg,
+	Moof,
+		Mfhd,
+		Traf,
+			Tfhd,
+			Tfdt,
+			Trun,
+	Mdat,
+	Free,
 }
 
 impl ReadFrom for Any {
-    fn read_from<R: Read>(r: &mut R) -> Result<Self> {
-        <Option<Any> as ReadFrom>::read_from(r)?.ok_or(Error::UnexpectedEof)
-    }
+	fn read_from<R: Read>(r: &mut R) -> Result<Self> {
+		<Option<Any> as ReadFrom>::read_from(r)?.ok_or(Error::UnexpectedEof)
+	}
 }
 
 impl ReadFrom for Option<Any> {
-    fn read_from<R: Read>(r: &mut R) -> Result<Self> {
-        let header = match <Option<Header> as ReadFrom>::read_from(r)? {
-            Some(header) => header,
-            None => return Ok(None),
-        };
+	fn read_from<R: Read>(r: &mut R) -> Result<Self> {
+		let header = match <Option<Header> as ReadFrom>::read_from(r)? {
+			Some(header) => header,
+			None => return Ok(None),
+		};
 
-        let body = &mut header.read_body(r)?;
-        Ok(Some(Any::decode_atom(&header, body)?))
-    }
+		let body = &mut header.read_body(r)?;
+		Ok(Some(Any::decode_atom(&header, body)?))
+	}
 }
 
 impl ReadAtom for Any {
-    fn read_atom<R: Read>(header: &Header, r: &mut R) -> Result<Self> {
-        let body = &mut header.read_body(r)?;
-        Any::decode_atom(header, body)
-    }
+	fn read_atom<R: Read>(header: &Header, r: &mut R) -> Result<Self> {
+		let body = &mut header.read_body(r)?;
+		Any::decode_atom(header, body)
+	}
 }

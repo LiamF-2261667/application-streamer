@@ -1,9 +1,9 @@
 use crate::track::TrackConsumer;
 use crate::{Audio, Catalog, Error, Input, Result, Track, TrackProducer, Video};
+use baton::Baton;
 use derive_more::Debug;
 use moq_async::Lock;
 use moq_transfork::{Announced, AnnouncedConsumer, AnnouncedMatch, GroupOrder, Session};
-use baton::Baton;
 
 #[derive(Default, Clone, Baton)]
 pub struct InputHandler {
@@ -54,7 +54,12 @@ impl BroadcastProducer {
 		// Create the input handler
 		let input_handler = InputHandler::default().baton();
 
-		Ok(Self { path, id, state, input_handler })
+		Ok(Self {
+			path,
+			id,
+			state,
+			input_handler,
+		})
 	}
 
 	/// Returns the input buffer.
@@ -83,7 +88,8 @@ impl BroadcastProducer {
 		let broadcast = self.clone();
 		let session_clone = session.clone();
 		moq_async::spawn(async move {
-			broadcast.handle_inputs(session_clone)
+			broadcast
+				.handle_inputs(session_clone)
 				.await
 				.expect("failed to handle inputs");
 		});
@@ -106,7 +112,7 @@ impl BroadcastProducer {
 
 	/// Handle inputs from the session.
 	async fn handle_inputs(mut self, session: Session) -> Result<()> {
-		let input_track = moq_transfork::Track{
+		let input_track = moq_transfork::Track {
 			path: format!("{}/input.karp", self.path),
 			priority: 0,
 			order: GroupOrder::Desc,
@@ -236,7 +242,7 @@ impl BroadcastConsumer {
 		let announced = session.announced(filter);
 
 		// Publish the input track
-		let input_track = moq_transfork::Track{
+		let input_track = moq_transfork::Track {
 			path: format!("{}/input.karp", path),
 			priority: 0,
 			order: GroupOrder::Desc,

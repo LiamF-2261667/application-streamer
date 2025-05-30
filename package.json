@@ -2,52 +2,31 @@
 	"name": "@kixelated/moq",
 	"version": "0.0.1",
 	"type": "module",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"exports": {
-		"./video": {
-			"types": "./dist/video/index.d.ts",
-			"import": "./dist/video/index.js"
-		},
-		"./publish": {
-			"types": "./dist/publish/index.d.ts",
-			"import": "./dist/publish/index.js"
-		},
-		"./publish/ui": {
-			"types": "./dist/publish/ui.d.ts",
-			"import": "./dist/publish/ui.js"
-		},
-		"./watch": {
-			"types": "./dist/watch/index.d.ts",
-			"import": "./dist/watch/index.js"
-		},
-		"./watch/ui": {
-			"types": "./dist/watch/ui.d.ts",
-			"import": "./dist/watch/ui.js"
-		},
-		"./meet": {
-			"types": "./dist/meet/index.d.ts",
-			"import": "./dist/meet/index.js"
-		},
-		"./meet/ui": {
-			"types": "./dist/meet/ui.d.ts",
-			"import": "./dist/meet/ui.js"
-		}
-	},
-	"sideEffects": ["./dist/rust.*", "./dist/snippets/*", "./dist/*/element.js", "./dist/*/ui.js"],
-	"files": ["dist", "README.md", "LICENSE*"],
+	"module": "./dist/server.js",
+	"types": "./dist/server.d.ts",
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE*"
+	],
 	"scripts": {
 		"build": "npm run build:prod && npm run build:tsc",
-		"build:prod": "wasm-pack build --out-dir ../dist moq-web --release --scope kixelated --out-name rust",
-		"build:dev": "wasm-pack build --out-dir ../dist moq-web --dev --scope kixelated --out-name rust",
+		"build:prod": "wasm-pack build --out-dir ../dist stream-deliverer --release --scope kixelated --out-name rust",
+		"build:dev": "wasm-pack build --out-dir ../dist stream-deliverer --dev --scope kixelated --out-name rust",
 		"build:tsc": "tsc && tsc-alias && rm dist/.gitignore dist/package.json",
-		"dev": "webpack serve",
+		"fetch:dev": "npx tsc && node dist/server.js",
+		"dev": "concurrently \"webpack serve\" \"npm run fetch:dev\"",
 		"check": "npm run build:dev && tsc --noEmit && biome check",
 		"fix": "biome check --write"
 	},
 	"dependencies": {
+		"@shoelace-style/shoelace": "^2.19.1",
+		"@types/cors": "^2.8.18",
+		"@types/express": "^4.17.22",
 		"comlink": "^4.4.2",
-		"@shoelace-style/shoelace": "^2.19.1"
+		"cors": "^2.8.5",
+		"express": "^5.1.0",
+		"nodemon": "^3.1.10"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.3",
@@ -66,6 +45,7 @@
 		"wasm-pack": "^0.13.1",
 		"webpack": "^5.97.1",
 		"webpack-cli": "^6.0.1",
-		"webpack-dev-server": "^5.2.0"
+		"webpack-dev-server": "^5.2.0",
+		"webpack-node-externals": "^3.0.0"
 	}
 }

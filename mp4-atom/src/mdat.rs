@@ -7,19 +7,19 @@ use crate::*;
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Mdat {
-    pub data: Vec<u8>,
+	pub data: Vec<u8>,
 }
 
 impl Atom for Mdat {
-    const KIND: FourCC = FourCC::new(b"mdat");
+	const KIND: FourCC = FourCC::new(b"mdat");
 
-    fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
-        Ok(Mdat {
-            data: Vec::decode(buf)?,
-        })
-    }
+	fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
+		Ok(Mdat {
+			data: Vec::decode(buf)?,
+		})
+	}
 
-    fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
-        self.data.encode(buf)
-    }
+	fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
+		self.data.encode(buf)
+	}
 }

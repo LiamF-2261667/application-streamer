@@ -7,6 +7,7 @@ import { type ConnectionStatus, convertConnectionStatus } from "../connection";
 import type { Bridge } from "./bridge";
 
 import { MoqElement, attribute, element, jsx } from "../util";
+import {apiRequest} from "../service";
 
 export type RendererStatus = "idle" | "paused" | "buffering" | "live";
 
@@ -102,7 +103,23 @@ export class Watch extends MoqElement {
 	}
 
 	private urlChange(value: string) {
-		this.#worker.then((worker) => worker.url(value));
+		// Get the PORT to use from the api endpoint.
+		apiRequest("getPersonalStream").then(data => {
+			let port: string = data.port;
+			value = value.replace("${PORT}", port);
+
+			console.log("Setting URL to:", value);
+			this.#worker.then((worker) => worker.url(value));
+
+			// Send a heartbeat every 45 seconds to keep the connection alive.
+			setInterval(() => {
+				apiRequest("heartbeat", "POST", { port }).catch((error) => {
+					console.error("Failed to send heartbeat:", error);
+				}).then(() => {
+					console.log("Heartbeat sent successfully.");
+				});
+			}, 45000);
+		})
 	}
 
 	private pausedChange(value: boolean) {

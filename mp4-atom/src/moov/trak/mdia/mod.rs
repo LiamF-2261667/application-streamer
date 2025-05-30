@@ -11,17 +11,17 @@ use crate::*;
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Mdia {
-    pub mdhd: Mdhd,
-    pub hdlr: Hdlr,
-    pub minf: Minf,
+	pub mdhd: Mdhd,
+	pub hdlr: Hdlr,
+	pub minf: Minf,
 }
 
 impl Atom for Mdia {
-    const KIND: FourCC = FourCC::new(b"mdia");
+	const KIND: FourCC = FourCC::new(b"mdia");
 
-    nested! {
-        required: [ Mdhd, Hdlr, Minf ],
-        optional: [] ,
-        multiple: [],
-    }
+	nested! {
+		required: [ Mdhd, Hdlr, Minf ],
+		optional: [] ,
+		multiple: [],
+	}
 }

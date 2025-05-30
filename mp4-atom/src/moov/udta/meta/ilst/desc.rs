@@ -5,13 +5,13 @@ use crate::*;
 pub struct Desc(pub String);
 
 impl Atom for Desc {
-    const KIND: FourCC = FourCC::new(b"desc");
+	const KIND: FourCC = FourCC::new(b"desc");
 
-    fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
-        Ok(Desc(String::decode(buf)?))
-    }
+	fn decode_body<B: Buf>(buf: &mut B) -> Result<Self> {
+		Ok(Desc(String::decode(buf)?))
+	}
 
-    fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
-        self.0.as_str().encode(buf)
-    }
+	fn encode_body<B: BufMut>(&self, buf: &mut B) -> Result<()> {
+		self.0.as_str().encode(buf)
+	}
 }

@@ -1,7 +1,7 @@
-use moq_karp::{BroadcastConsumer, Input};
-use wasm_bindgen_futures::spawn_local;
 use super::{ControlsRecv, InputsRecv, Renderer, StatusSend, Video};
 use crate::{Connect, ConnectionStatus, Error, Result};
+use moq_karp::{BroadcastConsumer, Input};
+use wasm_bindgen_futures::spawn_local;
 
 pub struct Backend {
 	controls: ControlsRecv,
@@ -17,7 +17,6 @@ pub struct Backend {
 
 impl Backend {
 	pub fn new(controls: ControlsRecv, inputs: InputsRecv, status: StatusSend) -> Self {
-
 		Self {
 			renderer: Renderer::new(controls.clone(), status.clone()),
 

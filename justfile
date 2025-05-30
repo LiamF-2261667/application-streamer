@@ -27,23 +27,20 @@ setup:
 	# Install cargo shear if needed.
 	cargo binstall --no-confirm cargo-shear
 
+	# Install cross for cross-compilation to linux.
+	cargo install cross --git https://github.com/cross-rs/cross
+	rustup toolchain add stable-x86_64-unknown-linux-gnu --profile minimal --force-non-host
+
 # Build the application streamer for linux
-#    cross build --bin application-streamer -- --target-dir out/application-streamer/ --target x86_64-unknown-linux-gnu
 application-streamer:
     cross build --bin application-streamer \
         --target-dir application-streamer/target \
-        --target x86_64-unknown-linux-gnu
-#    docker build -t application-streamer:latest -f application-streamer/Dockerfile application-streamer
-#    docker run \
-#        --rm \
-#        -p 4443:4443 \
-#        application-streamer:latest
-#    docker build -t application-streamer:latest .
-#    docker run \
-#        --rm \
-#        --mount type=bind,src="$(pwd)",dst=/application-streamer \
-#        -p 4443:4443 \
-#        application-streamer:latest
+        --target x86_64-unknown-linux-gnu \
+
+
+application-streamer-native:
+    cargo build --bin application-streamer \
+        --target-dir application-streamer/target
 
 # Run the relay, web server, and publish bbb.
 all:
@@ -116,17 +113,9 @@ pub-server name:
 		-movflags cmaf+separate_moof+delay_moov+skip_trailer+frag_every_frame \
 		- | cargo run --bin moq-karp -- --server --bind "[::]:4443" --tls-self-sign "localhost:4443" --tls-disable-verify publish "http://localhost:4443/"
 
-# Run the web server
-web:
+# Run the stream deliverer
+run:
 	npm i && npm run dev
-
-# Publish the clock broadcast
-clock-pub:
-	cargo run --bin moq-clock -- "http://localhost:4443" publish
-
-# Subscribe to the clock broadcast
-clock-sub:
-	cargo run --bin moq-clock -- "http://localhost:4443" subscribe
 
 # Run the CI checks
 check:

@@ -1,6 +1,7 @@
+use crate::broadcast::InputHandlerRecv;
 use crate::cmaf::Import;
 use crate::fingerprint::FingerprintServer;
-use crate::{BroadcastProducer};
+use crate::BroadcastProducer;
 use anyhow::Context;
 use moq_native::quic;
 use moq_native::quic::Server;
@@ -8,7 +9,6 @@ use moq_transfork::web_transport;
 use std::net::SocketAddr;
 use tokio::io::AsyncRead;
 use url::Url;
-use crate::broadcast::InputHandlerRecv;
 
 pub struct BroadcastServer<T: AsyncRead + Unpin> {
 	bind: SocketAddr,
@@ -24,7 +24,12 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 		let path = parsed_url.path().to_string();
 		let broadcast = BroadcastProducer::new(path).expect("failed to create broadcast");
 
-		Self { bind, tls, input, broadcast }
+		Self {
+			bind,
+			tls,
+			input,
+			broadcast,
+		}
 	}
 
 	/// Runs the server.
@@ -72,6 +77,10 @@ impl<T: AsyncRead + Unpin> BroadcastServer<T> {
 
 	fn accept(&mut self, mut server: Server) -> anyhow::Result<()> {
 		tracing::info!(addr = %self.bind, "listening");
+
+		// IMPORTANT! The line is used as a single for hosts that the application streamer is ready inside the container.
+		// Keep it as is.
+		println!("Ready to accept connections");
 
 		let mut conn_id = 0;
 		let mut broadcast = self.broadcast.clone();

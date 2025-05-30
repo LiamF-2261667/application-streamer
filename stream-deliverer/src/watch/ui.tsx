@@ -11,6 +11,7 @@ import "@shoelace-style/shoelace/dist/components/range/range.js";
 import "@shoelace-style/shoelace/dist/components/badge/badge.js";
 import "@shoelace-style/shoelace/dist/components/spinner/spinner.js";
 
+import "@shoelace-style/shoelace/dist/components/alert/alert.js";
 import type SlButton from "@shoelace-style/shoelace/dist/components/button/button.js";
 import type SlIcon from "@shoelace-style/shoelace/dist/components/icon/icon.js";
 import type SlRange from "@shoelace-style/shoelace/dist/components/range/range.js";

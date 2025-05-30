@@ -1,11 +1,9 @@
 [package]
-name = "moq-web"
-authors = ["Luke Curley <kixelated@gmail.com>"]
-edition = "2021"
-version = "0.4.6"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/kixelated/moq-web"
-description = "Web implementation for MoQ utilizing WebAssembly+Typescript"
+name = "stream-deliverer"
+authors = ["Luke Curley <kixelated@gmail.com>", "Liam Froyen <liam.froyen@student.uhasselt.be>"]
+edition = "2024"
+version = "1.0.0"
+description = "Web implementation for hosting an application-streaming-service using MoQ"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -66,4 +64,7 @@ features = [
 	"MediaStreamTrackProcessor",
 	"MediaStreamTrackProcessorInit",
 	"ReadableStreamDefaultReader",
+
+	# Debugging
+	"console",
 ]

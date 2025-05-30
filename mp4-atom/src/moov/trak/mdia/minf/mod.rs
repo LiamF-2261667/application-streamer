@@ -13,18 +13,18 @@ use crate::*;
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Minf {
-    pub vmhd: Option<Vmhd>,
-    pub smhd: Option<Smhd>,
-    pub dinf: Dinf,
-    pub stbl: Stbl,
+	pub vmhd: Option<Vmhd>,
+	pub smhd: Option<Smhd>,
+	pub dinf: Dinf,
+	pub stbl: Stbl,
 }
 
 impl Atom for Minf {
-    const KIND: FourCC = FourCC::new(b"minf");
+	const KIND: FourCC = FourCC::new(b"minf");
 
-    nested! {
-        required: [ Dinf, Stbl ],
-        optional: [ Vmhd, Smhd ],
-        multiple: [],
-    }
+	nested! {
+		required: [ Dinf, Stbl ],
+		optional: [ Vmhd, Smhd ],
+		multiple: [],
+	}
 }
