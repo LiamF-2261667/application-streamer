@@ -34,8 +34,8 @@ just setup
 
 ```sh
 # Build the application streamer:
-just application-server # for windows
-just application-server-native # for linux
+just application-streamer # for windows
+just application-streamer-native # for linux
 ```
 
 ```sh
